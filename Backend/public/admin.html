@@ -298,9 +298,6 @@
                     <div class="media-card ${index === 0 ? 'current' : ''}" data-id="${msg._id}">
                         <div class="position-badge ${index === 0 ? 'current' : ''}">#${index + 1}</div>
                         <div class="drag-handle" draggable="false"><i class="fas fa-grip-vertical"></i></div>
-                        <div class="media-preview" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8); display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-scroll" style="font-size: 3rem; color: white;"></i>
-                        </div>
                         <div class="media-title ${index === 0 ? 'current' : ''}">${msg.text}</div>
                         <div class="media-meta">${new Date(msg.createdAt).toLocaleString()}</div>
                         <button class="btn btn-danger" onclick="deleteMedia('${msg._id}', 'messages')"><i class="fas fa-trash"></i> Delete</button>
