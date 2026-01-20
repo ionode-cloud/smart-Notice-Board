@@ -8,25 +8,25 @@ require('dotenv').config();
 
 const app = express();
 
-// ✅ ENVIRONMENT VARIABLES
+//  ENVIRONMENT VARIABLES
 const PORT = process.env.PORT || 5000;
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/noticeboard';
+const MONGODB_URI = process.env.MONGODB_URI ;
 const MAX_FILE_SIZE = parseInt(process.env.MAX_FILE_SIZE) || 100 * 1024 * 1024;
 
-// ✅ MIDDLEWARE
+//  MIDDLEWARE
 app.use(cors({ origin: process.env.CORS_ORIGIN || '*' }));
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(express.static('public'));
 
-// ✅ CLOUDINARY CONFIG (from .env)
+//  CLOUDINARY CONFIG (from .env)
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
     api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-// ✅ MULTER CONFIG
+//  MULTER CONFIG
 const storage = multer.memoryStorage();
 const upload = multer({ 
     storage,
@@ -39,14 +39,14 @@ const upload = multer({
     }
 });
 
-// ✅ MONGODB
+//  MONGODB
 mongoose.connect(MONGODB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-}).then(() => console.log('✅ MongoDB Connected'))
-  .catch(err => console.error('❌ MongoDB Error:', err));
+}).then(() => console.log(' MongoDB Connected'))
+  .catch(err => console.error(' MongoDB Error:', err));
 
-// ✅ MEDIA SCHEMA
+//  MEDIA SCHEMA
 const mediaSchema = new mongoose.Schema({
     type: { type: String, enum: ['pdf', 'image', 'video'], required: true },
     cloudinary_url: { type: String, required: true },
@@ -58,7 +58,7 @@ const mediaSchema = new mongoose.Schema({
 
 const Media = mongoose.model('Media', mediaSchema);
 
-// ✅ ROTATION TRACKER SCHEMA
+//  ROTATION TRACKER SCHEMA
 const rotationSchema = new mongoose.Schema({
     type: { type: String, enum: ['pdf', 'video'], required: true },
     currentIndex: { type: Number, default: 0 },
@@ -68,21 +68,21 @@ const rotationSchema = new mongoose.Schema({
 
 const Rotation = mongoose.model('Rotation', rotationSchema);
 
-// ✅ Initialize rotation trackers
+//  Initialize rotation trackers
 async function initRotationTrackers() {
     const types = ['pdf', 'video'];
     for (const type of types) {
         const existing = await Rotation.findOne({ type });
         if (!existing) {
             await new Rotation({ type }).save();
-            console.log(`✅ Initialized ${type} rotation tracker`);
+            console.log(`Initialized ${type} rotation tracker`);
         }
     }
 }
 
 mongoose.connection.once('open', initRotationTrackers);
 
-// ✅ REINDEX FUNCTION
+//  REINDEX FUNCTION
 async function reindexMedia(type) {
     const media = await Media.find({ type }).sort({ order: 1 });
     await Promise.all(media.map((item, index) => 
@@ -90,7 +90,7 @@ async function reindexMedia(type) {
     ));
 }
 
-// ✅ DELETE ENDPOINTS
+//  DELETE ENDPOINTS
 app.delete('/api/pdfs/:id', async (req, res) => {
     try {
         const media = await Media.findByIdAndDelete(req.params.id);
@@ -127,7 +127,7 @@ app.delete('/api/videos/:id', async (req, res) => {
     }
 });
 
-// ✅ UPLOAD ENDPOINTS
+//  UPLOAD ENDPOINTS
 app.post('/api/pdf', upload.single('pdf'), async (req, res) => {
     try {
         if (!req.file) return res.status(400).json({ error: 'No PDF file' });
@@ -224,7 +224,7 @@ app.post('/api/videos', upload.single('video'), async (req, res) => {
     }
 });
 
-// ✅ ROTATION ENDPOINTS
+//  ROTATION ENDPOINTS
 app.get('/api/pdf', async (req, res) => {
     try {
         const pdfs = await Media.find({ type: 'pdf' })
@@ -258,7 +258,7 @@ app.get('/api/images', async (req, res) => {
     }
 });
 
-// ✅ ORDER ENDPOINTS (Admin drag & drop)
+// ORDER ENDPOINTS (Admin drag & drop)
 app.patch('/api/pdfs', async (req, res) => {
     try {
         const { order } = req.body;
@@ -297,17 +297,17 @@ app.patch('/api/videos', async (req, res) => {
     }
 });
 
-// ✅ HEALTH CHECK
+//  HEALTH CHECK
 app.get('/api/health', (req, res) => {
     res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
-// ✅ GLOBAL ERROR HANDLER
+// GLOBAL ERROR HANDLER
 app.use((err, req, res, next) => {
-    console.error('❌ Server Error:', err.stack);
+    console.error(' Server Error:', err.stack);
     res.status(500).json({ error: 'Something went wrong!', details: err.message });
 });
-// ✅ MARQUEE MESSAGES API
+//  MARQUEE MESSAGES API
 const Message = mongoose.model('Message', new mongoose.Schema({
     text: { type: String, required: true },
     isActive: { type: Boolean, default: true },
@@ -320,12 +320,12 @@ async function initMessages() {
     const count = await Message.countDocuments();
     if (count === 0) {
         await Message.insertMany([
-            { text: "📢 Welcome to Smart Notice Board! 🚀", priority: 1 },
-            { text: "🎓 MCA Department - Excellence in Education", priority: 2 },
-            { text: "💻 Latest Placement Updates Available", priority: 3 },
-            { text: "📚 Library Open 24/7 - Study Hard!", priority: 4 }
+            { text: "Welcome to Smart Notice Board! ", priority: 1 },
+            { text: "MCA Department - Excellence in Education", priority: 2 },
+            { text: "Latest Placement Updates Available", priority: 3 },
+            { text: " Library Open 24/7 - Study Hard!", priority: 4 }
         ]);
-        console.log('✅ Initialized marquee messages');
+        console.log(' Initialized marquee messages');
     }
 }
 
@@ -380,8 +380,8 @@ app.delete('/api/messages/:id', async (req, res) => {
     }
 });
 
-// ✅ START SERVER
+//  START SERVER
 app.listen(PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
-    console.log(`📊 Health: http://localhost:${PORT}/api/health`);
+    console.log(` Server running on http://localhost:${PORT}`);
+    console.log(` Health: http://localhost:${PORT}/api/health`);
 });

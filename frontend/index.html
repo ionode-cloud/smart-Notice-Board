@@ -3,518 +3,318 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Notice Board - PERFECT SMOOTH SCROLL</title>
+    <title>Smart Notice Board - 1000 PDFs + 1000 Videos ROTATION</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            height: 100vh; overflow: hidden; 
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; 
+            background: #ffffff; display: flex; flex-direction: column; 
+        }
+        .header { 
+            height: 70px; background-color: rgb(231, 231, 231); 
+            display: flex; align-items: center; justify-content: center; 
+            padding: 0 20px; z-index: 1000; 
+        }
+        .logo { height: 50px; width: auto; margin-right: 20px; }
+        .notice-title { 
+            color: rgb(37, 137, 28); font-size: 28px; font-weight: 700; 
+            letter-spacing: 1px; text-transform: uppercase; 
+        }
+        .parent { 
+            display: grid; grid-template-columns: repeat(6, 1fr); 
+            grid-template-rows: repeat(6, 1fr); gap: 10px; 
+            height: calc(100vh - 70px); width: 100vw; padding: 10px; 
         }
 
-        body {
-            height: 100vh;
-            overflow: hidden;
-            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-            background: #ffffff;
-            display: flex;
-            flex-direction: column;
+        .div1 { 
+            background-color: rgb(231, 231, 231); border-radius: 12px; 
+            grid-column: span 3; grid-row: span 6; overflow: hidden; 
+            position: relative; 
+        }
+        .pdf-scroll-wrapper { height: 100%; overflow: hidden; padding: 20px; }
+        .pdf-scroll-track { 
+            display: flex; flex-direction: column; gap: 20px; 
+            width: 100%; align-items: center; 
+            animation: scrollVerticalInfinite 90s linear infinite; 
+        }
+        .pdf-page { 
+            flex-shrink: 0; background: #fff; 
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2); 
+            border-radius: 12px; border: 3px solid rgba(37, 207, 49, 0.3); 
+            overflow: hidden; width: 92%; max-width: 520px; 
+            margin-bottom: 15px; 
+        }
+        canvas { width: 100%; height: auto; display: block; border-radius: 10px; }
+        .loader { 
+            position: absolute; top: 50%; left: 50%; 
+            transform: translate(-50%, -50%); text-align: center; 
+            color: #666; font-size: 20px; z-index: 10; 
         }
 
-        .header {
-            height: 70px;
-            background-color: rgb(231, 231, 231);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0 20px;
-            z-index: 1000;
+        @keyframes scrollVerticalInfinite { 
+            0% { transform: translateY(100vh); } 
+            100% { transform: translateY(-100%); } 
         }
 
-        .logo {
-            height: 50px;
-            width: auto;
-            margin-right: 20px;
+        .div2 { 
+            background-color: rgb(231, 231, 231); border-radius: 12px; 
+            grid-column: span 3; grid-row: span 3; overflow: hidden; 
+            position: relative; 
+        }
+        .gallery-wrapper { height: 100%; overflow: hidden; }
+        .gallery-track { 
+            display: flex; gap: 25px; width: max-content; height: 100%; 
+            align-items: center; animation: scrollSeamless 40s linear infinite; 
+            padding: 20px; 
+        }
+        .gallery-track img { 
+            border-radius: 16px; width: 320px; height: 88%; 
+            object-fit: cover; flex-shrink: 0; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3); 
+            border: 4px solid rgba(37, 207, 49, 0.2); 
+        }
+        @keyframes scrollSeamless { 
+            0% { transform: translateX(0); } 
+            100% { transform: translateX(-50%); } 
         }
 
-        .notice-title {
-            color: rgb(37, 137, 28);
-            font-size: 28px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            text-transform: uppercase;
+        .div3 { 
+            background-color: rgb(231, 231, 231); border-radius: 12px; 
+            grid-column: span 3; grid-row: span 3; 
+            display: flex; align-items: center; justify-content: center; 
+            overflow: hidden; padding: 20px; position: relative; 
         }
+        .div3 video { 
+            border-radius: 16px; max-width: 98%; max-height: 98%; 
+            object-fit: contain; box-shadow: 0 10px 35px rgba(0,0,0,0.4); 
+            border: 4px solid rgba(37, 207, 49, 0.3); 
+        }
+        .no-video { color: #666; font-size: 18px; text-align: center; }
 
-        .parent {
-            display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            grid-template-rows: repeat(6, 1fr);
-            gap: 10px;
-            height: calc(100vh - 70px); 
-            width: 100vw;
-            padding: 10px;
+        .marquee-container { 
+            position: fixed; bottom: 0; left: 0; right: 0; 
+            background: linear-gradient(135deg, #6f716f, #5a5c5a); 
+            color: #25cf31; padding: 15px 0; overflow: hidden; 
+            white-space: nowrap; z-index: 2000; 
+            box-shadow: 0 -6px 25px rgba(0,0,0,0.3); 
         }
-
-        /* --- DIV 1: PDF ROTATION (FIXED SMOOTH SCROLL) --- */
-        .div1 {
-            background-color: rgb(231, 231, 231);
-            border-radius: 12px;
-            grid-column: span 3 / span 3;
-            grid-row: span 6 / span 6;
-            overflow: hidden; 
-            position: relative;
+        #api-marquee-text { 
+            display: inline-block; animation: marqueeEffect 45s linear infinite; 
+            font-size: 22px; font-weight: 700; text-shadow: 2px 2px 6px rgba(0,0,0,0.7); 
+            padding-left: 100%; 
         }
-
-        .pdf-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
-            padding: 25px;
-            height: 100%;
-            width: 100%;
-            overflow-y: auto;
-            outline: none;
-            scroll-behavior: smooth;
-            scrollbar-width: thin;
-        }
-
-        /* Custom smooth scrollbar */
-        .pdf-container::-webkit-scrollbar {
-            width: 8px;
-        }
-        .pdf-container::-webkit-scrollbar-track {
-            background: rgba(0,0,0,0.1);
-            border-radius: 10px;
-        }
-        .pdf-container::-webkit-scrollbar-thumb {
-            background: linear-gradient(135deg, #25cf31, #1ea728);
-            border-radius: 10px;
-            border: 2px solid rgba(255,255,255,0.5);
-        }
-
-        canvas {
-            max-width: 98%;
-            max-height: 95vh;
-            background: #fff;
-            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.2);
-            display: block;
-            border-radius: 12px;
-            border: 3px solid rgba(37, 207, 49, 0.2);
-        }
-
-        .loader, .no-content {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            color: #666;
-            font-size: 20px;
-        }
-
-        /* --- DIV 2: Image Slideshow --- */
-        .div2 {
-            background-color: rgb(231, 231, 231);
-            border-radius: 12px;
-            grid-column: span 3 / span 3;
-            grid-row: span 3 / span 3;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .gallery-wrapper {
-            height: 100%;
-            overflow: hidden;
-        }
-
-        .gallery-track {
-            display: flex;
-            gap: 30px;
-            width: max-content;
-            height: 100%;
-            align-items: center;
-            animation: scrollSeamless 35s linear infinite;
-            padding: 20px;
-        }
-
-        .gallery-track img {
-            border-radius: 16px;
-            width: 340px;
-            height: 90%;
-            object-fit: cover;
-            flex-shrink: 0;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            border: 4px solid rgba(37, 207, 49, 0.2);
-        }
-
-        @keyframes scrollSeamless {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
-        }
-
-        /* --- DIV 3: VIDEO ROTATION --- */
-        .div3 {
-            background-color: rgb(231, 231, 231);
-            border-radius: 12px;
-            grid-column: span 3 / span 3;
-            grid-row: span 3 / span 3;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            padding: 20px;
-            position: relative;
-        }
-
-        .div3 video {
-            border-radius: 16px;
-            max-width: 98%;
-            max-height: 98%;
-            object-fit: contain;
-            box-shadow: 0 10px 35px rgba(0,0,0,0.4);
-            border: 4px solid rgba(37, 207, 49, 0.3);
-        }
-
-        /* --- API MARQUEE --- */
-        .marquee-container {
-            position: fixed; 
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: linear-gradient(135deg, #6f716f, #5a5c5a);
-            color: #25cf31;
-            padding: 15px 0;
-            overflow: hidden;
-            white-space: nowrap;
-            z-index: 2000;
-            box-shadow: 0 -6px 25px rgba(0,0,0,0.3);
-        }
-
-        #api-marquee-text {
-            display: inline-block;
-            animation: marqueeEffect 40s linear infinite;
-            font-size: 22px;
-            font-weight: 700;
-            text-shadow: 2px 2px 6px rgba(0,0,0,0.7);
-            padding-left: 100%;
-        }
-
-        @keyframes marqueeEffect {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-100%); }
+        @keyframes marqueeEffect { 
+            0% { transform: translateX(0); } 
+            100% { transform: translateX(-100%); } 
         }
     </style>
 </head>
-
 <body>
     <div class="header">
         <img src="./bupt-logo-img.webp" alt="Logo" class="logo" onerror="this.style.display='none'" />
-        <h1 class="notice-title">Smart Notice Board</h1>
+        <h1 class="notice-title">Smart Notice Board </h1>
     </div>
 
     <div class="parent">
-        <!-- PDF ROTATION -->
+        <!--  PDFs -->
         <div class="div1">
-            <div class="pdf-container" id="pdfContainer" tabindex="0">
-                <div class="loader" id="pdfLoader">
-                    <p>🔄 Loading PDF...</p>
+            <div class="pdf-scroll-wrapper">
+                <div class="pdf-scroll-track" id="pdfScrollTrack">
+                    <div class="loader" id="pdfLoader">Loading PDFs...</div>
                 </div>
             </div>
         </div>
 
-        <!-- Images Slideshow -->
+        <!-- IMAGES -->
         <div class="div2">
             <div class="gallery-wrapper">
                 <div class="gallery-track" id="galleryTrack">
-                    <!-- Dynamic images from API -->
+                    <div class="loader">Loading Images...</div>
                 </div>
             </div>
         </div>
 
-        <!-- VIDEO ROTATION -->
+        <!-- VIDEOS -->
         <div class="div3">
-            <video id="mainVideo" muted playsinline style="display: none;">
+            <div class="no-video" id="noVideoMsg">Loading Videos</div>
+            <video id="mainVideo" muted playsinline loop preload="metadata">
                 <source src="" type="video/mp4" />
+                Your browser does not support the video tag.
             </video>
         </div>
     </div>
 
     <div class="marquee-container">
-        <div id="api-marquee-text">Welcome to Smart Notice Board! 🚀</div>
+        <div id="api-marquee-text">Smart Notice Board</div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script>
         const API_BASE = 'https://smart-notice-board-a.onrender.com/api';
+        
+        // GLOBAL INDEX TRACKERS
+        let pdfs = [], videos = [];
+        let pdfLoadIndex = 0;
+        let videoLoadIndex = 0;
 
-        // Rotation state
-        let pdfs = [], currentPdfIndex = 0, pdfTotal = 0;
-        let videos = [], currentVideoIndex = 0, videoTotal = 0;
-        let pdfScrollId = null;
-        let pdfIsScrolling = false;
-
-        // ========== FIXED PDF SMOOTH SCROLLING ==========
+        // PDFs ROTATION SYSTEM
         async function loadPDFs() {
             try {
                 const response = await fetch(`${API_BASE}/pdf`);
                 pdfs = await response.json();
-                pdfTotal = pdfs.length;
-                if (pdfTotal > 0) {
-                    loadCurrentPDF();
-                } else {
-                    document.getElementById('pdfLoader').innerHTML = '📄 No PDFs available';
-                }
-            } catch (error) {
-                console.error('PDFs load error:', error);
-            }
-        }
-
-        function loadCurrentPDF() {
-            const container = document.getElementById('pdfContainer');
-            container.innerHTML = '<div class="loader" id="pdfLoader"><p>🔄 Rendering PDF...</p></div>';
-            
-            // Stop any ongoing scroll
-            stopPdfScroll();
-            
-            renderPdf(pdfs[currentPdfIndex].cloudinary_url);
-        }
-
-        function renderPdf(url) {
-            const container = document.getElementById('pdfContainer');
-            pdfjsLib.getDocument(url).promise.then(pdf => {
-                const loader = document.getElementById('pdfLoader');
-                if (loader) loader.remove();
-
-                let renderedPages = 0;
-                const maxPages = Math.min(pdf.numPages, 5);
                 
-                // Clear container first
-                container.innerHTML = '';
-                
-                for (let pageNum = 1; pageNum <= maxPages; pageNum++) {
-                    pdf.getPage(pageNum).then(page => {
-                        const viewport = page.getViewport({ scale: 1.25 });
-                        const canvas = document.createElement("canvas");
-                        const ctx = canvas.getContext("2d");
-                        canvas.width = viewport.width;
-                        canvas.height = viewport.height;
-
-                        page.render({ 
-                            canvasContext: ctx, 
-                            viewport,
-                            intent: 'display'
-                        }).promise.then(() => {
-                            container.appendChild(canvas);
-                            renderedPages++;
-                            
-                            // Start smooth scroll only when ALL pages rendered
-                            if (renderedPages === maxPages) {
-                                // Force layout reflow
-                                container.scrollTop = 0;
-                                setTimeout(() => startPdfSmoothScroll(), 1000);
-                            }
-                        });
-                    });
-                }
-            }).catch(error => {
-                console.error('PDF render error:', error);
-                document.getElementById('pdfLoader').innerHTML = '❌ PDF render failed';
-            });
-        }
-
-        // FIXED SMOOTH SCROLLING
-        function startPdfSmoothScroll() {
-            // Stop any existing scroll
-            stopPdfScroll();
-            
-            const container = document.getElementById('pdfContainer');
-            
-            // Wait for layout to settle
-            requestAnimationFrame(() => {
-                const maxScroll = container.scrollHeight - container.clientHeight;
-                
-                // No scroll needed
-                if (maxScroll <= 20) {
-                    setTimeout(() => nextPdf(), 5000);
+                if (pdfs.length === 0) {
+                    document.getElementById('pdfLoader').textContent = '📄 No PDFs available';
                     return;
                 }
 
-                pdfIsScrolling = true;
-                let startTime = null;
-                const scrollDuration = 25000; // 25 seconds total scroll time
+                const track = document.getElementById('pdfScrollTrack');
+                if (document.getElementById('pdfLoader')) {
+                    document.getElementById('pdfLoader').remove();
+                }
 
-                function scrollStep(timestamp) {
-                    if (!pdfIsScrolling) return;
-                    
-                    if (!startTime) startTime = timestamp;
-                    const elapsed = timestamp - startTime;
-                    const progress = Math.min(elapsed / scrollDuration, 1);
-                    
-                    // Ultra-smooth easing (easeInOutCubic)
-                    const easeProgress = easeInOutCubic(progress);
-                    container.scrollTop = easeProgress * maxScroll;
+                //LOAD ONLY 6-8 PAGES 
+                const maxPages = 8;
+                let pagesLoaded = 0;
+                
+                // Rotate through PDFs
+                const startIndex = pdfLoadIndex % Math.min(pdfs.length, 100);
+                const endIndex = Math.min(startIndex + 3, pdfs.length);
 
-                    if (progress < 1) {
-                        pdfScrollId = requestAnimationFrame(scrollStep);
-                    } else {
-                        // Scroll complete - wait 3 seconds then next PDF
-                        setTimeout(nextPdf, 3000);
+                for (let i = startIndex; i < endIndex && pagesLoaded < maxPages; i++) {
+                    const pdfData = pdfs[i % pdfs.length];
+                    try {
+                        const pdf = await pdfjsLib.getDocument(pdfData.cloudinary_url).promise;
+                        
+                        // Load 2-3 pages per PDF only
+                        const pagesPerPdf = Math.min(pdf.numPages, 3);
+                        for (let pageNum = 1; pageNum <= pagesPerPdf && pagesLoaded < maxPages; pageNum++) {
+                            const page = await pdf.getPage(pageNum);
+                            const scale = 1.0;
+                            const viewport = page.getViewport({ scale });
+
+                            const canvas = document.createElement('canvas');
+                            const ctx = canvas.getContext('2d');
+                            canvas.width = viewport.width;
+                            canvas.height = viewport.height;
+                            canvas.style.width = '100%';
+                            canvas.style.height = 'auto';
+
+                            const pdfPageDiv = document.createElement('div');
+                            pdfPageDiv.className = 'pdf-page';
+                            pdfPageDiv.appendChild(canvas);
+
+                            await page.render({ canvasContext: ctx, viewport }).promise;
+                            track.appendChild(pdfPageDiv);
+                            pagesLoaded++;
+                        }
+                    } catch (error) {
+                        console.error('PDF render error:', error);
                     }
                 }
+
+                pdfLoadIndex += 3;
+                console.log(`📄 PDFs ${startIndex}-${endIndex}/${pdfs.length} | Pages: ${pagesLoaded}`);
                 
-                pdfScrollId = requestAnimationFrame(scrollStep);
-            });
-        }
-
-        // Ultra-smooth easing function
-        function easeInOutCubic(t) {
-            return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-        }
-
-        function stopPdfScroll() {
-            pdfIsScrolling = false;
-            if (pdfScrollId) {
-                cancelAnimationFrame(pdfScrollId);
-                pdfScrollId = null;
-            }
-        }
-
-        function nextPdf() {
-            stopPdfScroll();
-            if (pdfTotal > 1) {
-                currentPdfIndex = (currentPdfIndex + 1) % pdfTotal;
-                loadCurrentPDF();
-            }
-        }
-
-        // ========== VIDEO ROTATION ==========
-        async function loadVideos() {
-            try {
-                const response = await fetch(`${API_BASE}/videos`);
-                videos = await response.json();
-                videoTotal = videos.length;
-                if (videoTotal > 0) {
-                    loadCurrentVideo();
-                }
             } catch (error) {
-                console.error('Videos load error:', error);
+                console.error('PDF Load Error:', error);
+                document.getElementById('pdfLoader').textContent = '❌ PDF Load Failed';
             }
         }
 
-        function loadCurrentVideo() {
-            const video = document.getElementById('mainVideo');
-            video.style.display = 'block';
-            video.querySelector('source').src = videos[currentVideoIndex].cloudinary_url;
-            video.load();
-            
-            videoEnded = false;
-            video.onended = () => {
-                videoEnded = true;
-                setTimeout(nextVideo, 2000);
-            };
-            video.play().catch(e => console.error('Video play failed:', e));
-        }
-
-        function nextVideo() {
-            if (videoEnded && videoTotal > 1) {
-                currentVideoIndex = (currentVideoIndex + 1) % videoTotal;
-                loadCurrentVideo();
-                videoEnded = false;
-            }
-        }
-
-        // ========== OTHER CONTENT ==========
+        // IMAGES 
         async function loadImages() {
             try {
                 const response = await fetch(`${API_BASE}/images`);
                 const images = await response.json();
-                const track = document.getElementById("galleryTrack");
-                
+                const track = document.getElementById('galleryTrack');
                 track.innerHTML = '';
-                images.slice(0, 15).forEach(img => {
-                    const image = document.createElement('img');
-                    image.src = img.cloudinary_url;
-                    image.alt = img.filename;
-                    image.onerror = () => { image.style.display = 'none'; };
-                    image.loading = 'lazy';
-                    track.appendChild(image);
+                
+                images.slice(0, 12).forEach(img => {
+                    const imageEl = document.createElement('img');
+                    imageEl.src = img.cloudinary_url;
+                    imageEl.alt = img.filename;
+                    imageEl.loading = 'lazy';
+                    imageEl.onerror = () => imageEl.style.display = 'none';
+                    track.appendChild(imageEl);
                 });
                 
                 if (track.children.length > 0) {
                     track.innerHTML += track.innerHTML;
                 }
-            } catch (error) {
-                console.error('Images load error:', error);
+            } catch (e) {
+                console.error('Images error:', e);
             }
         }
 
+        // VIDEOS
+        async function loadVideos() {
+            try {
+                const response = await fetch(`${API_BASE}/videos`);
+                videos = await response.json();
+                
+                if (videos.length === 0) {
+                    document.getElementById('noVideoMsg').textContent = '📹 No videos available';
+                    return;
+                }
+
+                // SHOW ONE VIDEO AT A TIME 
+                const currentVideoIndex = videoLoadIndex % videos.length;
+                const currentVideo = videos[currentVideoIndex];
+                
+                const video = document.getElementById('mainVideo');
+                const source = video.querySelector('source');
+                
+                // Load next video
+                source.src = currentVideo.cloudinary_url;
+                video.load();
+                video.style.display = 'block';
+                document.getElementById('noVideoMsg').style.display = 'none';
+                
+                // Auto play
+                video.play().catch(e => console.log('Video autoplay failed:', e));
+                
+                // Move to next video for next refresh
+                videoLoadIndex++;
+                console.log(` Video ${currentVideoIndex + 1}/${videos.length}: ${currentVideo.filename || 'Unknown'}`);
+                
+            } catch (e) {
+                console.error('Videos error:', e);
+                document.getElementById('noVideoMsg').textContent = 'Video Load Failed';
+            }
+        }
+
+        // MARQUEE MESSAGES
         async function loadMarquee() {
-    try {
-        const response = await fetch(`${API_BASE}/messages`);
-        const messages = await response.json();
-        
-        const messageText = messages
-            .map(msg => `📢 ${msg.text.substring(0, 50)}`)
-            .join(" | ");
-        
-        const marqueeText = document.getElementById("api-marquee-text");
-        if (marqueeText) {
-            marqueeText.innerText = messageText + " | " + messageText; // Duplicate for seamless loop
-        }
-    } catch (err) {
-        // Fallback
-        document.getElementById("api-marquee-text").innerText = 
-            "Welcome to Smart Notice Board!  | All systems operational | Perfect smooth animations! | ";
-    }
-}
-
-
-        // ========== SILENT INITIALIZATION ==========
-        async function init() {
-            console.log('🚀 Smart Notice Board - PERFECT SMOOTH SCROLL');
-            
-            await Promise.all([
-                loadPDFs(),
-                loadVideos(),
-                loadImages(),
-                loadMarquee()
-            ]);
-            
-            console.log('✅ SMOOTH SCROLLING FIXED');
-        }
-
-        // Auto-refresh every 30 seconds
-        setInterval(async () => {
-            console.log('🔄 Silent refresh...');
-            await Promise.all([
-                loadPDFs(),
-                loadVideos(),
-                loadImages(),
-                loadMarquee()
-            ]);
-        }, 30000);
-
-        // Network handling (silent)
-        window.addEventListener('online', () => init());
-        window.addEventListener('offline', () => {});
-
-        // Keyboard controls (silent)
-        document.addEventListener('keydown', e => {
-            if (e.code === 'Space') {
-                e.preventDefault();
-                stopPdfScroll();
-                setTimeout(startPdfSmoothScroll, 1000);
+            try {
+                const response = await fetch(`${API_BASE}/messages`);
+                const msgs = await response.json();
+                const text = msgs.map(m => `${m.text.substring(0, 45)}`).join(' | ');
+                document.getElementById('api-marquee-text').textContent = text + ' | ' + text;
+            } catch (e) {
+                document.getElementById('api-marquee-text').textContent = 'Smart Notice Board - 1000+ PDFs & Videos Rotating! ';
             }
-        });
+        }
 
-        // Start silently
+        //  MAIN INIT FUNCTION
+        async function init() {
+            console.log(' Refreshing content...');
+            await Promise.all([loadPDFs(), loadImages(), loadVideos(), loadMarquee()]);
+        }
+
+        // Auto refresh every 10 seconds
+        setInterval(init, 10000);
+        
+        // PDF.js worker setup
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+        // Start application
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', init);
         } else {
             init();
         }
-
-        pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
     </script>
 </body>
 </html>

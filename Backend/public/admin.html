@@ -186,7 +186,7 @@
     </div>
 
     <script>
-        // ✅ PERFECT API ENDPOINT MATCHING YOUR server.js
+        // PERFECT API ENDPOINT MATCHING YOUR server.js
         const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
             ? 'https://smart-notice-board-a.onrender.com/api' 
             : `${window.location.protocol}//${window.location.host}/api`;
@@ -210,7 +210,7 @@
                 : `<i class="fas fa-pause-circle"></i> No ${type}`;
         }
 
-        // ✅ PDF FUNCTIONS - MATCHES YOUR ENDPOINTS
+        // PDF FUNCTIONS - MATCHES YOUR ENDPOINTS
         async function loadPDFs() {
             const list = document.getElementById('pdfList');
             try {
@@ -237,7 +237,7 @@
             }
         }
 
-        // ✅ IMAGE FUNCTIONS
+        // IMAGE FUNCTIONS
         async function loadImages() {
             const list = document.getElementById('imageList');
             try {
@@ -259,7 +259,7 @@
             }
         }
 
-        // ✅ VIDEO FUNCTIONS
+        // VIDEO FUNCTIONS
         async function loadVideos() {
             const list = document.getElementById('videoList');
             try {
@@ -283,7 +283,7 @@
             }
         }
 
-        // ✅ MESSAGES FUNCTIONS
+        // MESSAGES FUNCTIONS
         async function loadMessages() {
             const list = document.getElementById('messageList');
             try {
@@ -303,24 +303,24 @@
             }
         }
 
-        // ✅ DELETE FUNCTION - MATCHES YOUR ENDPOINTS
+        // DELETE FUNCTION - MATCHES YOUR ENDPOINTS
         window.deleteMedia = async (id, endpoint) => {
             if (confirm(`Delete this item?`)) {
                 try {
                     const response = await fetch(`${API_BASE}/${endpoint}/${id}`, { method: 'DELETE' });
                     if (!response.ok) throw new Error('Delete failed');
-                    showStatus('✅ Deleted successfully!');
+                    showStatus(' Deleted successfully!');
                     if (endpoint === 'pdfs') loadPDFs();
                     if (endpoint === 'images') loadImages();
                     if (endpoint === 'videos') loadVideos();
                     if (endpoint === 'messages') loadMessages();
                 } catch (error) {
-                    showStatus('❌ Delete failed', 'error');
+                    showStatus(' Delete failed', 'error');
                 }
             }
         };
 
-        // ✅ DRAG & DROP - MATCHES YOUR PATCH ENDPOINTS
+        // DRAG & DROP - MATCHES YOUR PATCH ENDPOINTS
         function initDragDrop(listId, endpoint) {
             const list = document.getElementById(listId);
             let draggedItem = null;
@@ -372,13 +372,13 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ order: ids })
                 });
-                showStatus('✅ Order saved!');
+                showStatus('Order saved!');
             } catch (error) {
                 console.error('Order update failed:', error);
             }
         }
 
-        // ✅ FORM HANDLERS - PERFECT ENDPOINT MATCH
+        // FORM HANDLERS - PERFECT ENDPOINT MATCH
         document.getElementById('pdfForm').addEventListener('submit', handleFormSubmit);
         document.getElementById('imageForm').addEventListener('submit', handleFormSubmit);
         document.getElementById('videoForm').addEventListener('submit', handleFormSubmit);
@@ -402,13 +402,13 @@
                     throw new Error(error.error || 'Upload failed');
                 }
                 
-                showStatus('✅ Upload successful!');
+                showStatus(' Upload successful!');
                 form.reset();
                 if (endpoint === 'pdf') loadPDFs();
                 if (endpoint === 'images') loadImages();
                 if (endpoint === 'videos') loadVideos();
             } catch (error) {
-                showStatus(`❌ ${error.message}`, 'error');
+                showStatus(` ${error.message}`, 'error');
             } finally {
                 btn.innerHTML = originalText;
                 btn.disabled = false;
@@ -433,18 +433,18 @@
                 });
                 
                 if (!response.ok) throw new Error('Failed to add message');
-                showStatus('✅ Message added!');
+                showStatus(' Message added!');
                 e.target.reset();
                 loadMessages();
             } catch (error) {
-                showStatus('❌ Failed to add message', 'error');
+                showStatus('Failed to add message', 'error');
             } finally {
                 btn.innerHTML = originalText;
                 btn.disabled = false;
             }
         }
 
-        // ✅ INIT
+        //  INIT
         async function init() {
             loadPDFs();
             loadImages();
@@ -463,7 +463,7 @@
             loadPDFs();
             loadVideos();
             loadMessages();
-        }, 15000);
+        }, 10000);
     </script>
 </body>
 </html>
