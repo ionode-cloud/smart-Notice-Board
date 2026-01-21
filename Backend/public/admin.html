@@ -73,20 +73,107 @@
         .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
         .btn-danger { background: linear-gradient(135deg, var(--danger), #dc2626) !important; box-shadow: 0 4px 14px 0 rgb(239, 68, 68 / 0.4) !important; padding: 0.75rem 1.5rem !important; font-size: 0.875rem !important; width: auto !important; }
 
-        .media-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1.75rem; margin-top: 2rem; }
-        .media-card { background: white; border: 2px solid var(--gray-100); border-radius: 20px; padding: 1.75rem; text-align: center; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; overflow: hidden; cursor: grab; box-shadow: var(--shadow-sm); }
+        .media-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); 
+            gap: 1.75rem; 
+            margin-top: 2rem;
+            min-height: 400px;
+            position: relative;
+        }
+        .media-card { 
+            background: white; 
+            border: 2px solid var(--gray-100); 
+            border-radius: 20px; 
+            padding: 1.75rem; 
+            text-align: center; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            position: relative; 
+            overflow: hidden; 
+            cursor: grab; 
+            box-shadow: var(--shadow-sm);
+            user-select: none;
+        }
+        .media-card:active { cursor: grabbing; }
         .media-card:hover { border-color: var(--primary); transform: translateY(-4px); box-shadow: var(--shadow-lg); }
-        .media-card.current { border-color: var(--primary); background: linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(37, 99, 235, 0.04)); box-shadow: 0 8px 25px rgb(37, 99, 235 / 0.2); transform: scale(1.02); }
-        .media-card.featured { border-color: var(--warning); background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(245, 158, 11, 0.04)); box-shadow: 0 8px 25px rgb(245, 158, 11 / 0.3); }
-        .media-card.dragging { opacity: 0.8; transform: rotate(3deg) scale(1.03) !important; border-color: var(--success) !important; box-shadow: 0 20px 40px rgb(16, 185, 129 / 0.3) !important; }
-        .position-badge { position: absolute; top: 1rem; left: 1rem; background: var(--primary); color: white; padding: 0.375rem 0.75rem; border-radius: 20px; font-size: 0.75rem; font-weight: 700; z-index: 10; }
-        .position-badge.current { background: var(--primary-dark); }
-        .media-preview { width: 100%; height: 180px; object-fit: cover; border-radius: 16px; margin-bottom: 1rem; box-shadow: var(--shadow-md); display: block; }
-        .media-title { font-weight: 600; color: var(--gray-900); margin-bottom: 0.5rem; font-size: 0.95rem; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; }
-        .media-title.current, .media-title.featured { color: var(--primary); font-size: 1.05rem; font-weight: 700; }
-        .media-meta { font-size: 0.8rem; color: var(--gray-500); margin-bottom: 1rem; }
-        .drop-zone { border: 3px dashed var(--success); background: rgba(16, 185, 129, 0.08); }
-        .empty-state { grid-column: 1 / -1; text-align: center; color: var(--gray-500); padding: 4rem 2rem; }
+        .media-card.current { 
+            border-color: var(--primary); 
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(37, 99, 235, 0.04)); 
+            box-shadow: 0 8px 25px rgb(37, 99, 235 / 0.2); 
+            transform: scale(1.02); 
+        }
+        .media-card.featured { 
+            border-color: var(--warning); 
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(245, 158, 11, 0.04)); 
+            box-shadow: 0 8px 25px rgb(245, 158, 11 / 0.3); 
+        }
+        .media-card.dragging { 
+            opacity: 0.9; 
+            transform: rotate(5deg) scale(1.05) !important; 
+            border-color: var(--success) !important; 
+            box-shadow: 0 25px 50px rgb(16, 185, 129 / 0.4) !important;
+            z-index: 1000;
+        }
+        .media-card.drop-zone { 
+            border-color: var(--success) !important; 
+            background: rgba(16, 185, 129, 0.1) !important;
+            transform: scale(1.02) !important;
+        }
+        .position-badge { 
+            position: absolute; 
+            top: 1rem; 
+            left: 1rem; 
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark)); 
+            color: white; 
+            padding: 0.5rem 0.875rem; 
+            border-radius: 20px; 
+            font-size: 0.8rem; 
+            font-weight: 700; 
+            z-index: 10;
+            box-shadow: var(--shadow-md);
+            min-width: 32px;
+            text-align: center;
+        }
+        .position-badge.current { 
+            background: linear-gradient(135deg, var(--success), #059669) !important;
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgb(16, 185, 129 / 0.4);
+        }
+        .position-badge.featured { 
+            background: linear-gradient(135deg, var(--warning), #d97706) !important;
+        }
+        .media-preview { 
+            width: 100%; 
+            height: 180px; 
+            object-fit: cover; 
+            border-radius: 16px; 
+            margin-bottom: 1rem; 
+            box-shadow: var(--shadow-md); 
+            display: block; 
+        }
+        .media-title { 
+            font-weight: 600; 
+            color: var(--gray-900); 
+            margin-bottom: 0.5rem; 
+            font-size: 0.95rem;
+            min-height: 1.25rem;
+        }
+        .media-title.current, .media-title.featured { 
+            color: var(--primary); 
+            font-size: 1.05rem; 
+            font-weight: 700; 
+        }
+        .media-meta { 
+            font-size: 0.8rem; 
+            color: var(--gray-500); 
+            margin-bottom: 1rem; 
+        }
+        .empty-state { 
+            grid-column: 1 / -1; 
+            text-align: center; 
+            color: var(--gray-500); 
+            padding: 4rem 2rem; 
+        }
         .empty-state i { font-size: 4rem; margin-bottom: 1rem; opacity: 0.5; }
 
         @media (max-width: 768px) {
@@ -94,6 +181,7 @@
             .header-content { flex-direction: column; text-align: center; }
             .header-text h1 { font-size: 1.875rem; }
             .media-grid { grid-template-columns: 1fr; }
+            .media-card.dragging { transform: rotate(2deg) scale(1.03) !important; }
         }
     </style>
 </head>
@@ -104,8 +192,8 @@
         <div class="header">
             <div class="header-content">
                 <div class="header-text">
-                    <h1>Smart Notice Board Admin</h1>
-                    <p>Manage PDFs, Images, Videos & Messages • Drag #1 for Priority</p>
+                    <h1>🔥 Smart Notice Board Admin</h1>
+                    <p>Manage PDFs, Images, Videos & Messages • <strong>Drag #1 to TOP for Priority Display</strong></p>
                 </div>
             </div>
         </div>
@@ -116,77 +204,77 @@
         <!-- PDF Management -->
         <div class="card">
             <div class="card-header">
-                <h2><i class="fas fa-file-pdf"></i> PDF Documents</h2>
+                <h2><i class="fas fa-file-pdf"></i> 📄 PDF Documents</h2>
                 <div class="status-badge" id="pdfStatus"><i class="fas fa-sync fa-spin"></i> Loading...</div>
             </div>
             <form id="pdfForm">
                 <div class="form-group">
-                    <label class="form-label">Upload PDF Document (single PDF contain 6pages Max )<small>Drag #1 to top for priority rotation</small></label>
+                    <label class="form-label">Upload PDF Document (Max 6 pages)<small>🚀 Drag #1 to top for priority rotation</small></label>
                     <input type="file" name="pdf" accept=".pdf" class="file-input" required>
                 </div>
                 <button type="submit" class="btn"><i class="fas fa-cloud-upload-alt"></i> Upload PDF</button>
             </form>
             <div id="pdfList" class="media-grid">
-                <div class="empty-state"><i class="far fa-file-pdf"></i><div>No PDF documents</div><small>Upload PDFs for rotation display</small></div>
+                <div class="empty-state"><i class="far fa-file-pdf"></i><div>No PDF documents</div><small>Upload PDFs & drag to reorder priority</small></div>
             </div>
         </div>
 
         <!-- Image Management -->
         <div class="card">
             <div class="card-header">
-                <h2><i class="fas fa-images"></i> Image Slideshow</h2>
+                <h2><i class="fas fa-images"></i> 🖼️ Image Slideshow</h2>
             </div>
             <form id="imageForm">
                 <div class="form-group">
-                    <label class="form-label">Upload Images<small> (Max 10 images ) Drag to reorder</small></label>
+                    <label class="form-label">Upload Images (Max 10)<small>🎨 Drag #1 to top for featured display</small></label>
                     <input type="file" name="images" accept="image/*" multiple class="file-input">
                 </div>
                 <button type="submit" class="btn"><i class="fas fa-images"></i> Upload Images</button>
             </form>
             <div id="imageList" class="media-grid">
-                <div class="empty-state"><i class="far fa-images"></i><div>No images</div><small>Upload images for slideshow</small></div>
+                <div class="empty-state"><i class="far fa-images"></i><div>No images</div><small>Upload & drag images to set slideshow order</small></div>
             </div>
         </div>
 
         <!-- Video Management -->
         <div class="card">
             <div class="card-header">
-                <h2><i class="fas fa-video"></i> Video Content</h2>
+                <h2><i class="fas fa-video"></i> 🎥 Video Content</h2>
                 <div class="status-badge" id="videoStatus"><i class="fas fa-sync fa-spin"></i> Loading...</div>
             </div>
             <form id="videoForm">
                 <div class="form-group">
-                    <label class="form-label">Upload Video (Video size Max 50mb-100mb) <small>Drag #1 to top for priority rotation</small></label>
+                    <label class="form-label">Upload Video (Max 100MB)<small>🎬 Drag #1 to top for priority rotation</small></label>
                     <input type="file" name="video" accept="video/*" class="file-input" required>
                 </div>
                 <button type="submit" class="btn"><i class="fas fa-video"></i> Upload Video</button>
             </form>
             <div id="videoList" class="media-grid">
-                <div class="empty-state"><i class="far fa-file-video"></i><div>No videos</div><small>Upload videos for rotation display</small></div>
+                <div class="empty-state"><i class="far fa-file-video"></i><div>No videos</div><small>Upload videos & drag to set priority</small></div>
             </div>
         </div>
 
         <!-- Messages Management -->
         <div class="card">
             <div class="card-header">
-                <h2><i class="fas fa-scroll"></i> Marquee Messages</h2>
+                <h2><i class="fas fa-scroll"></i> 📢 Marquee Messages</h2>
                 <div class="status-badge" id="messageStatus"><i class="fas fa-sync fa-spin"></i> Loading...</div>
             </div>
             <form id="messageForm">
                 <div class="form-group">
-                    <label class="form-label">Add Marquee Message <small>Max 100 chars - Shows in bottom ticker</small></label>
+                    <label class="form-label">Add Marquee Message<small>Max 100 chars - Drag #1 for top priority</small></label>
                     <input type="text" name="text" maxlength="100" class="text-input" placeholder="e.g. MCA Placement Drive Tomorrow!" required>
                 </div>
                 <button type="submit" class="btn"><i class="fas fa-plus"></i> Add Message</button>
             </form>
             <div id="messageList" class="media-grid">
-                <div class="empty-state"><i class="far fa-comment"></i><div>No messages</div><small>Add your first marquee message</small></div>
+                <div class="empty-state"><i class="far fa-comment"></i><div>No messages</div><small>Add messages & drag to set display order</small></div>
             </div>
         </div>
     </div>
 
     <script>
-        // PERFECT API ENDPOINT MATCHING YOUR server.js
+        // 🔥 PERFECT API ENDPOINT MATCHING YOUR server.js
         const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
             ? 'https://smart-notice-board-a.onrender.com/api' 
             : `${window.location.protocol}//${window.location.host}/api`;
@@ -195,7 +283,7 @@
 
         let pdfs = [], images = [], videos = [], messages = [];
 
-        // Status notifications
+        // 📱 Status notifications
         function showStatus(message, type = 'success') {
             const toast = document.getElementById('statusToast');
             toast.textContent = message;
@@ -210,30 +298,93 @@
                 : `<i class="fas fa-pause-circle"></i> No ${type}`;
         }
 
-        // PDF FUNCTIONS - MATCHES YOUR ENDPOINTS
+        // 🎨 ENHANCED RENDERING WITH POSITION BADGES
+        function renderMediaItems(containerId, items, type) {
+            const container = document.getElementById(containerId);
+            if (!items.length) {
+                container.innerHTML = getEmptyState(type);
+                return;
+            }
+
+            container.innerHTML = items.map((item, index) => {
+                const isPriority1 = index === 0;
+                const cardClass = isPriority1 ? (type === 'images' ? 'featured' : 'current') : '';
+                const badgeClass = isPriority1 ? 'current' : (type === 'images' && index === 0 ? 'featured' : '');
+                const titleClass = isPriority1 ? 'current' : '';
+                const priorityText = isPriority1 ? (type === 'images' ? ' • Featured' : ' • Priority #1') : '';
+
+                let previewHtml = '';
+                if (type === 'pdfs') {
+                    previewHtml = `
+                        <div class="media-preview" style="background: linear-gradient(135deg, #f3f4f6, #e5e7eb); display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-file-pdf" style="font-size: 3rem; color: #dc2626;"></i>
+                        </div>
+                    `;
+                } else if (type === 'images') {
+                    previewHtml = `
+                        <img src="${item.cloudinary_url}" alt="${item.filename}" class="media-preview" 
+                             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                        <div class="media-preview" style="display:none; background: var(--gray-100); align-items: center; justify-content: center;">
+                            <i class="fas fa-image" style="font-size:3rem;color:var(--gray-400)"></i>
+                        </div>
+                    `;
+                } else if (type === 'videos') {
+                    previewHtml = `<video src="${item.cloudinary_url}" muted class="media-preview" preload="metadata"></video>`;
+                } else if (type === 'messages') {
+                    previewHtml = `
+                        <div class="media-preview" style="background: linear-gradient(135deg, var(--primary), var(--primary-dark)); display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-comment-dots" style="font-size: 3rem; color: white;"></i>
+                        </div>
+                    `;
+                }
+
+                return `
+                    <div class="media-card ${cardClass}" draggable="true" data-id="${item._id}">
+                        <div class="position-badge ${badgeClass}">#${index + 1}</div>
+                        ${previewHtml}
+                        <div class="media-title ${titleClass ? titleClass : ''}">${item.filename || item.text}${priorityText}</div>
+                        <div class="media-meta">${new Date(item.uploadedAt || item.createdAt).toLocaleString()}</div>
+                        <button class="btn btn-danger" onclick="deleteMedia('${item._id}', '${type}')">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function getEmptyState(type) {
+            const icons = {
+                pdfs: 'far fa-file-pdf',
+                images: 'far fa-images',
+                videos: 'far fa-file-video',
+                messages: 'far fa-comment'
+            };
+            const texts = {
+                pdfs: 'No PDF documents',
+                images: 'No images',
+                videos: 'No videos',
+                messages: 'No messages'
+            };
+            return `
+                <div class="empty-state">
+                    <i class="${icons[type] || 'fas fa-exclamation-triangle'}"></i>
+                    <div>${texts[type]}</div>
+                    <small>Upload ${type} & drag to set priority order</small>
+                </div>
+            `;
+        }
+
+        // PDF FUNCTIONS
         async function loadPDFs() {
             const list = document.getElementById('pdfList');
             try {
                 const response = await fetch(`${API_BASE}/pdf`);
                 pdfs = await response.json();
-                list.innerHTML = pdfs.length ? pdfs.map((pdf, index) => {
-                    const isCurrent = index === 0;
-                    return `
-                        <div class="media-card ${isCurrent ? 'current' : ''}" draggable="true" data-id="${pdf._id}">
-                            <div class="position-badge ${isCurrent ? 'current' : ''}">#${index + 1}</div>
-                            
-                            <div class="media-preview" style="background: linear-gradient(135deg, #f3f4f6, #e5e7eb); display: flex; align-items: center; justify-content: center;">
-                                <i class="fas fa-file-pdf" style="font-size: 3rem; color: #dc2626;"></i>
-                            </div>
-                            <div class="media-title ${isCurrent ? 'current' : ''}">${pdf.filename}${isCurrent ? ' • Next' : ''}</div>
-                            <div class="media-meta">${new Date(pdf.uploadedAt).toLocaleString()}</div>
-                            <button class="btn btn-danger" onclick="deleteMedia('${pdf._id}', 'pdfs')"><i class="fas fa-trash"></i> Delete</button>
-                        </div>`;
-                }).join('') : `<div class="empty-state"><i class="far fa-file-pdf"></i><div>No PDFs</div><small>Upload PDFs for rotation</small></div>`;
+                renderMediaItems('pdfList', pdfs, 'pdfs');
                 updateStatusBadge('pdf', pdfs.length);
-                initDragDrop('pdfList', 'pdfs');
+                initDragDrop('pdfList', 'pdf', pdfs);
             } catch (error) {
-                list.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><div>Error loading PDFs</div></div>';
+                list.innerHTML = getEmptyState('pdfs');
             }
         }
 
@@ -243,19 +394,10 @@
             try {
                 const response = await fetch(`${API_BASE}/images`);
                 images = await response.json();
-                list.innerHTML = images.length ? images.map((img, index) => `
-                    <div class="media-card ${index === 0 ? 'featured' : ''}" draggable="true" data-id="${img._id}">
-                        <div class="position-badge">#${index + 1}</div>
-                        <img src="${img.cloudinary_url}" alt="${img.filename}" class="media-preview" onerror="this.style.display='none';this.nextSibling.style.display='flex'">
-                        <div class="media-preview" style="display:none; background: var(--gray-100); align-items: center; justify-content: center;"><i class="fas fa-image" style="font-size:3rem;color:var(--gray-400)"></i></div>
-                        <div class="media-title ${index === 0 ? 'featured' : ''}">${img.filename}</div>
-                        <div class="media-meta">${new Date(img.uploadedAt).toLocaleString()}</div>
-                        <button class="btn btn-danger" onclick="deleteMedia('${img._id}', 'images')"><i class="fas fa-trash"></i> Delete</button>
-                    </div>
-                `).join('') : `<div class="empty-state"><i class="far fa-images"></i><div>No images</div><small>Upload images for slideshow</small></div>`;
-                initDragDrop('imageList', 'images');
+                renderMediaItems('imageList', images, 'images');
+                initDragDrop('imageList', 'images', images);
             } catch (error) {
-                list.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><div>Error loading images</div></div>';
+                list.innerHTML = getEmptyState('images');
             }
         }
 
@@ -265,21 +407,11 @@
             try {
                 const response = await fetch(`${API_BASE}/videos`);
                 videos = await response.json();
-                list.innerHTML = videos.length ? videos.map((video, index) => {
-                    const isCurrent = index === 0;
-                    return `
-                        <div class="media-card ${isCurrent ? 'current' : ''}" draggable="true" data-id="${video._id}">
-                            <div class="position-badge ${isCurrent ? 'current' : ''}">#${index + 1}</div>
-                            <video src="${video.cloudinary_url}" muted class="media-preview" preload="metadata"></video>
-                            <div class="media-title ${isCurrent ? 'current' : ''}">${video.filename}${isCurrent ? ' • Next' : ''}</div>
-                            <div class="media-meta">${new Date(video.uploadedAt).toLocaleString()}</div>
-                            <button class="btn btn-danger" onclick="deleteMedia('${video._id}', 'videos')"><i class="fas fa-trash"></i> Delete</button>
-                        </div>`;
-                }).join('') : `<div class="empty-state"><i class="far fa-file-video"></i><div>No videos</div><small>Upload videos for rotation</small></div>`;
+                renderMediaItems('videoList', videos, 'videos');
                 updateStatusBadge('video', videos.length);
-                initDragDrop('videoList', 'videos');
+                initDragDrop('videoList', 'videos', videos);
             } catch (error) {
-                list.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><div>Error loading videos</div></div>';
+                list.innerHTML = getEmptyState('videos');
             }
         }
 
@@ -289,96 +421,148 @@
             try {
                 const response = await fetch(`${API_BASE}/messages`);
                 messages = await response.json();
-                list.innerHTML = messages.length ? messages.map((msg, index) => `
-                    <div class="media-card ${index === 0 ? 'current' : ''}" data-id="${msg._id}">
-                        <div class="position-badge ${index === 0 ? 'current' : ''}">#${index + 1}</div>
-                        <div class="media-title ${index === 0 ? 'current' : ''}">${msg.text}</div>
-                        <div class="media-meta">${new Date(msg.createdAt).toLocaleString()}</div>
-                        <button class="btn btn-danger" onclick="deleteMedia('${msg._id}', 'messages')"><i class="fas fa-trash"></i> Delete</button>
-                    </div>
-                `).join('') : `<div class="empty-state"><i class="far fa-comment"></i><div>No messages</div><small>Add your first marquee message</small></div>`;
+                renderMediaItems('messageList', messages, 'messages');
                 updateStatusBadge('message', messages.length);
+                initDragDrop('messageList', 'messages', messages);
             } catch (error) {
-                list.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><div>Error loading messages</div></div>';
+                list.innerHTML = getEmptyState('messages');
             }
         }
 
-        // DELETE FUNCTION - MATCHES YOUR ENDPOINTS
+        // 🗑️ DELETE FUNCTION
         window.deleteMedia = async (id, endpoint) => {
-            if (confirm(`Delete this item?`)) {
+            if (confirm(`Delete this ${endpoint.slice(0, -1)}?`)) {
                 try {
                     const response = await fetch(`${API_BASE}/${endpoint}/${id}`, { method: 'DELETE' });
                     if (!response.ok) throw new Error('Delete failed');
-                    showStatus(' Deleted successfully!');
-                    if (endpoint === 'pdfs') loadPDFs();
-                    if (endpoint === 'images') loadImages();
-                    if (endpoint === 'videos') loadVideos();
-                    if (endpoint === 'messages') loadMessages();
+                    showStatus(`${endpoint.slice(0, -1).toUpperCase()} deleted!`);
+                    refreshAll();
                 } catch (error) {
-                    showStatus(' Delete failed', 'error');
+                    showStatus('Delete failed', 'error');
                 }
             }
         };
 
-        // DRAG & DROP - MATCHES YOUR PATCH ENDPOINTS
-        function initDragDrop(listId, endpoint) {
+        // 🔥 ENHANCED DRAG & DROP WITH PRIORITY SYSTEM
+        function initDragDrop(listId, endpoint, items) {
             const list = document.getElementById(listId);
             let draggedItem = null;
+            let draggedItemIndex = null;
 
+            // Drag start
             list.addEventListener('dragstart', (e) => {
-                if (e.target.closest('.media-card')) {
-                    draggedItem = e.target.closest('.media-card');
-                    draggedItem.classList.add('dragging');
+                const card = e.target.closest('.media-card');
+                if (card) {
+                    draggedItem = card;
+                    draggedItemIndex = Array.from(list.children).indexOf(card);
+                    card.classList.add('dragging');
+                    showStatus('🔄 Drag to reorder priority...', 'success');
                 }
             });
 
-            list.addEventListener('dragend', () => {
+            // Drag end - Auto save order
+            list.addEventListener('dragend', async () => {
                 if (draggedItem) {
                     draggedItem.classList.remove('dragging');
-                    updateOrder(listId, endpoint);
+                    await updateOrder(listId, endpoint);
                     draggedItem = null;
+                    draggedItemIndex = null;
                 }
             });
 
+            // Drag over - Visual feedback
             list.addEventListener('dragover', (e) => {
                 e.preventDefault();
                 const afterElement = getDragAfterElement(list, e.clientY);
-                [...list.querySelectorAll('.media-card')].forEach(item => item.classList.remove('drop-zone'));
-                if (afterElement) afterElement.classList.add('drop-zone');
+                
+                // Remove drop zone from all
+                [...list.querySelectorAll('.media-card')].forEach(item => {
+                    item.classList.remove('drop-zone');
+                });
+                
+                // Add to target
+                if (afterElement) {
+                    afterElement.classList.add('drop-zone');
+                }
             });
 
+            // Drop - Reorder items
             list.addEventListener('drop', (e) => {
                 e.preventDefault();
-                [...list.querySelectorAll('.media-card')].forEach(item => item.classList.remove('drop-zone'));
+                [...list.querySelectorAll('.media-card')].forEach(item => {
+                    item.classList.remove('drop-zone');
+                });
+
+                const afterElement = getDragAfterElement(list, e.clientY);
+                if (!afterElement) return;
+
+                const newIndex = Array.from(list.children).indexOf(afterElement);
+                list.insertBefore(draggedItem, afterElement);
+                
+                // Update position badges instantly
+                updatePositionBadges(list);
+            });
+
+            // Touch support for mobile
+            let touchStartY = 0;
+            list.addEventListener('touchstart', (e) => {
+                touchStartY = e.touches[0].clientY;
+            });
+
+            list.addEventListener('touchmove', (e) => {
+                e.preventDefault();
             });
         }
 
         function getDragAfterElement(container, y) {
             const draggableElements = [...container.querySelectorAll('.media-card:not(.dragging)')];
+            
             return draggableElements.reduce((closest, child) => {
                 const box = child.getBoundingClientRect();
                 const offset = y - box.top - box.height / 2;
-                if (offset < 0 && offset > closest.offset) return { offset, element: child };
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset, element: child };
+                }
                 return closest;
             }, { offset: Number.NEGATIVE_INFINITY }).element;
         }
 
+        function updatePositionBadges(container) {
+            [...container.querySelectorAll('.media-card')].forEach((card, index) => {
+                const badge = card.querySelector('.position-badge');
+                if (badge) {
+                    badge.textContent = `#${index + 1}`;
+                    badge.className = `position-badge ${index === 0 ? 'current' : ''}`;
+                }
+            });
+        }
+
+        // 💾 SAVE ORDER TO BACKEND
         async function updateOrder(listId, endpoint) {
             const list = document.getElementById(listId);
             const ids = [...list.querySelectorAll('.media-card')].map(item => item.dataset.id);
+            
             try {
-                await fetch(`${API_BASE}/${endpoint}`, {
+                const response = await fetch(`${API_BASE}/${endpoint}`, {
                     method: 'PATCH',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ order: ids })
                 });
-                showStatus('Order saved!');
+                
+                if (response.ok) {
+                    showStatus('✅ Priority order saved! #1 is now top priority');
+                } else {
+                    showStatus('Failed to save order', 'error');
+                    // Revert on error
+                    refreshAll();
+                }
             } catch (error) {
                 console.error('Order update failed:', error);
+                showStatus('Order save failed', 'error');
             }
         }
 
-        // FORM HANDLERS - PERFECT ENDPOINT MATCH
+        // 📤 FORM HANDLERS
         document.getElementById('pdfForm').addEventListener('submit', handleFormSubmit);
         document.getElementById('imageForm').addEventListener('submit', handleFormSubmit);
         document.getElementById('videoForm').addEventListener('submit', handleFormSubmit);
@@ -395,20 +579,21 @@
             try {
                 const formData = new FormData(form);
                 const endpoint = form.id === 'pdfForm' ? 'pdf' : form.id.replace('Form', 's');
-                const response = await fetch(`${API_BASE}/${endpoint}`, { method: 'POST', body: formData });
+                const response = await fetch(`${API_BASE}/${endpoint}`, { 
+                    method: 'POST', 
+                    body: formData 
+                });
                 
                 if (!response.ok) {
                     const error = await response.json();
                     throw new Error(error.error || 'Upload failed');
                 }
                 
-                showStatus(' Upload successful!');
+                showStatus('✅ Upload successful!');
                 form.reset();
-                if (endpoint === 'pdf') loadPDFs();
-                if (endpoint === 'images') loadImages();
-                if (endpoint === 'videos') loadVideos();
+                refreshAll();
             } catch (error) {
-                showStatus(` ${error.message}`, 'error');
+                showStatus(`❌ ${error.message}`, 'error');
             } finally {
                 btn.innerHTML = originalText;
                 btn.disabled = false;
@@ -433,23 +618,29 @@
                 });
                 
                 if (!response.ok) throw new Error('Failed to add message');
-                showStatus(' Message added!');
+                showStatus('✅ Message added!');
                 e.target.reset();
-                loadMessages();
+                refreshAll();
             } catch (error) {
-                showStatus('Failed to add message', 'error');
+                showStatus('❌ Failed to add message', 'error');
             } finally {
                 btn.innerHTML = originalText;
                 btn.disabled = false;
             }
         }
 
-        //  INIT
-        async function init() {
+        // 🔄 UTILITY FUNCTIONS
+        async function refreshAll() {
             loadPDFs();
             loadImages();
             loadVideos();
             loadMessages();
+        }
+
+        // 🚀 INIT APP
+        async function init() {
+            console.log('🚀 Smart Notice Board Admin Initialized');
+            await refreshAll();
         }
 
         if (document.readyState === 'loading') {
@@ -458,12 +649,8 @@
             init();
         }
 
-        // Auto refresh
-        setInterval(() => {
-            loadPDFs();
-            loadVideos();
-            loadMessages();
-        }, 10000);
+        // 🔄 Auto refresh every 10s
+        setInterval(refreshAll, 10000);
     </script>
 </body>
 </html>
