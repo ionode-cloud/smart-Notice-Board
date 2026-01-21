@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,7 +8,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* [Previous CSS remains exactly the same - keeping it short] */
         :root {
             --primary: #2563eb;
             --primary-dark: #1d4ed8;
@@ -29,105 +29,359 @@
             --border: #e5e7eb;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-            min-height: 100vh; 
-            color: var(--gray-900); 
-            line-height: 1.6; 
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        .app-container { max-width: 1400px; margin: 0 auto; padding: 2rem; min-height: 100vh; }
-        .header { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px); border-radius: 24px; padding: 2.5rem; margin-bottom: 2.5rem; box-shadow: var(--shadow-xl); border: 1px solid rgba(255, 255, 255, 0.2); position: relative; overflow: hidden; }
-        .header::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--primary), var(--success), var(--warning)); }
-        .header-content { display: flex; align-items: center; gap: 1.5rem; max-width: 800px; margin: 0 auto; }
-        .header-text h1 { font-size: 2.25rem; font-weight: 700; color: var(--gray-900);text-align: center; }
-        .header-text p { font-size: 1.125rem; color: var(--gray-600); font-weight: 500; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: var(--gray-900);
+            line-height: 1.6;
+        }
 
-        .status-toast { position: fixed; top: 2rem; right: 2rem; padding: 1.25rem 2rem; border-radius: 16px; color: white; font-weight: 600; font-size: 0.95rem; z-index: 1000; transform: translateX(400px); transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: var(--shadow-xl); backdrop-filter: blur(20px); }
-        .status-toast.show { transform: translateX(0); }
-        .status-toast.success { background: linear-gradient(135deg, var(--success), #059669); }
-        .status-toast.error { background: linear-gradient(135deg, var(--danger), #dc2626); }
+        .app-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            min-height: 100vh;
+        }
 
-        .message { padding: 1rem 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; font-weight: 500; display: none; }
-        .message.success { background: #ecfdf5; color: #166534; border: 1px solid #bbf7d0; }
-        .message.error { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 2.5rem;
+            margin-bottom: 2.5rem;
+            box-shadow: var(--shadow-xl);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
 
-        .card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px); border-radius: 20px; padding: 2.5rem; margin-bottom: 2rem; box-shadow: var(--shadow-lg); border: 1px solid rgba(255, 255, 255, 0.2); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; overflow: hidden; }
-        .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--primary), var(--success)); opacity: 0; transition: opacity 0.3s ease; }
-        .card:hover { transform: translateY(-4px); box-shadow: var(--shadow-xl); }
-        .card:hover::before { opacity: 1; }
-        .card h2 { font-size: 1.75rem; font-weight: 700; color: var(--gray-900); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.75rem; }
-        .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
-        .status-badge { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; padding: 0.5rem 1rem; border-radius: 50px; font-size: 0.875rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; }
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--success), var(--warning));
+        }
 
-        .form-group { margin-bottom: 1.75rem; }
-        .form-label { display: block; font-weight: 600; color: var(--gray-800); font-size: 0.95rem; margin-bottom: 0.5rem; }
-        .form-label small { color: var(--gray-500); font-weight: 400; }
-        .file-input, .text-input { width: 100%; padding: 1rem 1.25rem; border: 2px dashed var(--gray-200); border-radius: 16px; background: var(--gray-50); font-size: 0.95rem; transition: all 0.3s ease; cursor: pointer; }
-        .file-input:hover, .text-input:hover { border-color: var(--primary); background: rgba(37, 99, 235, 0.05); }
+        .header-text h1 {
+            font-size: 2.25rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            text-align: center;
+        }
 
-        .btn { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; padding: 1rem 2rem; border: none; border-radius: 16px; cursor: pointer; font-size: 1rem; font-weight: 600; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: var(--shadow-lg); width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
-        .btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-xl); }
-        .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-        .btn-danger { background: linear-gradient(135deg, var(--danger), #dc2626) !important; box-shadow: 0 4px 14px 0 rgb(239, 68, 68 / 0.4) !important; padding: 0.75rem 1.5rem !important; font-size: 0.875rem !important; width: auto !important; }
+        .header-text p {
+            font-size: 1.125rem;
+            color: var(--gray-600);
+            font-weight: 500;
+        }
 
-        /* FIXED DRAG & DROP STYLES */
-        .media-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); 
-            gap: 1.75rem; 
+        .status-toast {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            padding: 1.25rem 2rem;
+            border-radius: 16px;
+            color: white;
+            font-weight: 600;
+            font-size: 0.95rem;
+            z-index: 1000;
+            transform: translateX(400px);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow-xl);
+            backdrop-filter: blur(20px);
+        }
+
+        .status-toast.show {
+            transform: translateX(0);
+        }
+
+        .status-toast.success {
+            background: linear-gradient(135deg, var(--success), #059669);
+        }
+
+        .status-toast.error {
+            background: linear-gradient(135deg, var(--danger), #dc2626);
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .status-badge {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.75rem;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: var(--gray-800);
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-label small {
+            color: var(--gray-500);
+            font-weight: 400;
+        }
+
+        .file-input,
+        .text-input {
+            width: 100%;
+            padding: 1rem 1.25rem;
+            border: 2px dashed var(--gray-200);
+            border-radius: 16px;
+            background: var(--gray-50);
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .file-input:hover,
+        .text-input:hover {
+            border-color: var(--primary);
+            background: rgba(37, 99, 235, 0.05);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 16px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-lg);
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger), #dc2626) !important;
+            box-shadow: 0 4px 14px 0 rgb(239, 68, 68/0.4) !important;
+            padding: 0.75rem 1.5rem !important;
+            font-size: 0.875rem !important;
+            width: auto !important;
+        }
+
+        .media-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 1.75rem;
             margin-top: 2rem;
             min-height: 400px;
             position: relative;
         }
-        .media-card { 
-            background: white; 
-            border: 2px solid var(--gray-100); 
-            border-radius: 20px; 
-            padding: 1.75rem; 
-            text-align: center; 
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-            position: relative; 
-            overflow: hidden; 
-            cursor: grab; 
+
+        .media-card {
+            background: white;
+            border: 2px solid var(--gray-100);
+            border-radius: 20px;
+            padding: 1.75rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            cursor: grab;
             box-shadow: var(--shadow-sm);
             user-select: none;
         }
-        .media-card:active { cursor: grabbing; }
-        .media-card:hover:not(.dragging) { border-color: var(--primary); transform: translateY(-4px); box-shadow: var(--shadow-lg); }
-        .media-card.current { border-color: var(--primary); background: linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(37, 99, 235, 0.04)); box-shadow: 0 8px 25px rgb(37, 99, 235 / 0.2); transform: scale(1.02); }
-        .media-card.featured { border-color: var(--warning); background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(245, 158, 11, 0.04)); box-shadow: 0 8px 25px rgb(245, 158, 11 / 0.3); }
-        .media-card.dragging { opacity: 0.9; transform: rotate(5deg) scale(1.05) !important; border-color: var(--success) !important; box-shadow: 0 25px 50px rgb(16, 185, 129 / 0.4) !important; z-index: 1000; }
-        .media-card.drop-zone { border-color: var(--success) !important; background: rgba(16, 185, 129, 0.1) !important; transform: scale(1.02) !important; }
-        .position-badge { position: absolute; top: 1rem; left: 1rem; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; padding: 0.5rem 0.875rem; border-radius: 20px; font-size: 0.8rem; font-weight: 700; z-index: 10; box-shadow: var(--shadow-md); min-width: 32px; text-align: center; }
-        .position-badge.current { background: linear-gradient(135deg, var(--success), #059669) !important; transform: scale(1.1); box-shadow: 0 4px 12px rgb(16, 185, 129 / 0.4); }
-        .position-badge.featured { background: linear-gradient(135deg, var(--warning), #d97706) !important; }
-        .media-preview { width: 100%; height: 180px; object-fit: cover; border-radius: 16px; margin-bottom: 1rem; box-shadow: var(--shadow-md); display: block; }
-        .media-title { font-weight: 600; color: var(--gray-900); margin-bottom: 0.5rem; font-size: 0.95rem; min-height: 1.25rem; }
-        .media-title.current, .media-title.featured { color: var(--primary); font-size: 1.05rem; font-weight: 700; }
-        .media-meta { font-size: 0.8rem; color: var(--gray-500); margin-bottom: 1rem; }
-        .empty-state { grid-column: 1 / -1; text-align: center; color: var(--gray-500); padding: 4rem 2rem; }
-        .empty-state i { font-size: 4rem; margin-bottom: 1rem; opacity: 0.5; }
+
+        .media-card:active {
+            cursor: grabbing;
+        }
+
+        .media-card:hover:not(.dragging) {
+            border-color: var(--primary);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .media-card.current {
+            border-color: var(--primary);
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(37, 99, 235, 0.04));
+            box-shadow: 0 8px 25px rgb(37, 99, 235/0.2);
+            transform: scale(1.02);
+        }
+
+        .media-card.featured {
+            border-color: var(--warning);
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(245, 158, 11, 0.04));
+            box-shadow: 0 8px 25px rgb(245, 158, 11/0.3);
+        }
+
+        .media-card.dragging {
+            opacity: 0.9;
+            transform: rotate(5deg) scale(1.05) !important;
+            border-color: var(--success) !important;
+            box-shadow: 0 25px 50px rgb(16, 185, 129/0.4) !important;
+            z-index: 1000;
+        }
+
+        .media-card.drop-zone {
+            border-color: var(--success) !important;
+            background: rgba(16, 185, 129, 0.1) !important;
+            transform: scale(1.02) !important;
+        }
+
+        .position-badge {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 0.5rem 0.875rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            z-index: 10;
+            box-shadow: var(--shadow-md);
+            min-width: 32px;
+            text-align: center;
+        }
+
+        .position-badge.current {
+            background: linear-gradient(135deg, var(--success), #059669) !important;
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgb(16, 185, 129/0.4);
+        }
+
+        .position-badge.featured {
+            background: linear-gradient(135deg, var(--warning), #d97706) !important;
+        }
+
+        .media-preview {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 16px;
+            margin-bottom: 1rem;
+            box-shadow: var(--shadow-md);
+            display: block;
+        }
+
+        .media-title {
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+            min-height: 1.25rem;
+        }
+
+        .media-title.current,
+        .media-title.featured {
+            color: var(--primary);
+            font-size: 1.05rem;
+            font-weight: 700;
+        }
+
+        .media-meta {
+            font-size: 0.8rem;
+            color: var(--gray-500);
+            margin-bottom: 1rem;
+        }
+
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            color: var(--gray-500);
+            padding: 4rem 2rem;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
 
         @media (max-width: 768px) {
-            .app-container { padding: 1rem; }
-            .header-content { flex-direction: column; text-align: center; }
-            .header-text h1 { font-size: 1.875rem; }
-            .media-grid { grid-template-columns: 1fr; }
+            .app-container {
+                padding: 1rem;
+            }
+
+            .header-text h1 {
+                font-size: 1.875rem;
+            }
+
+            .media-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
+
 <body>
-    <!-- [HTML structure same as before] -->
     <div class="status-toast" id="statusToast"></div>
     <div class="app-container">
         <div class="header">
             <div class="header-content">
                 <div class="header-text">
-                    <h1>🔥 Smart Notice Board Admin</h1>
-                    <p>Manage PDFs, Images, Videos & Messages • <strong>Drag #1 to TOP for Priority</strong></p>
+                    <h1>Smart Notice Board Admin</h1>
                 </div>
             </div>
         </div>
@@ -135,12 +389,12 @@
         <!-- PDF Management -->
         <div class="card">
             <div class="card-header">
-                <h2><i class="fas fa-file-pdf"></i> 📄 PDF Documents</h2>
+                <h2><i class="fas fa-file-pdf"></i> PDF Documents</h2>
                 <div class="status-badge" id="pdfStatus"><i class="fas fa-sync fa-spin"></i> Loading...</div>
             </div>
             <form id="pdfForm">
                 <div class="form-group">
-                    <label class="form-label">Upload PDF (Max 6 pages)<small>🚀 Drag #1 to top</small></label>
+                    <label class="form-label">Upload PDF (Max 6 pages)<small> Drag #1 to top</small></label>
                     <input type="file" name="pdf" accept=".pdf" class="file-input" required>
                 </div>
                 <button type="submit" class="btn"><i class="fas fa-cloud-upload-alt"></i> Upload PDF</button>
@@ -151,11 +405,11 @@
         <!-- Image Management -->
         <div class="card">
             <div class="card-header">
-                <h2><i class="fas fa-images"></i> 🖼️ Image Slideshow</h2>
+                <h2><i class="fas fa-images"></i> Image Slideshow</h2>
             </div>
             <form id="imageForm">
                 <div class="form-group">
-                    <label class="form-label">Upload Images (Max 10)<small>🎨 Drag #1 for featured</small></label>
+                    <label class="form-label">Upload Images (Max 10)<small> Drag #1 for featured</small></label>
                     <input type="file" name="images" accept="image/*" multiple class="file-input">
                 </div>
                 <button type="submit" class="btn"><i class="fas fa-images"></i> Upload Images</button>
@@ -166,12 +420,12 @@
         <!-- Video Management -->
         <div class="card">
             <div class="card-header">
-                <h2><i class="fas fa-video"></i> 🎥 Video Content</h2>
+                <h2><i class="fas fa-video"></i> Video Content</h2>
                 <div class="status-badge" id="videoStatus"><i class="fas fa-sync fa-spin"></i> Loading...</div>
             </div>
             <form id="videoForm">
                 <div class="form-group">
-                    <label class="form-label">Upload Video (Max 100MB)<small>🎬 Drag #1 to top</small></label>
+                    <label class="form-label">Upload Video (Max 100MB)<small> Drag #1 to top</small></label>
                     <input type="file" name="video" accept="video/*" class="file-input" required>
                 </div>
                 <button type="submit" class="btn"><i class="fas fa-video"></i> Upload Video</button>
@@ -182,13 +436,14 @@
         <!-- Messages Management -->
         <div class="card">
             <div class="card-header">
-                <h2><i class="fas fa-scroll"></i> 📢 Marquee Messages</h2>
+                <h2><i class="fas fa-scroll"></i>Marquee Messages</h2>
                 <div class="status-badge" id="messageStatus"><i class="fas fa-sync fa-spin"></i> Loading...</div>
             </div>
             <form id="messageForm">
                 <div class="form-group">
                     <label class="form-label">Add Message<small>Max 100 chars - Drag #1 priority</small></label>
-                    <input type="text" name="text" maxlength="100" class="text-input" placeholder="e.g. MCA Placement Tomorrow!" required>
+                    <input type="text" name="text" maxlength="100" class="text-input"
+                        placeholder="e.g. MCA Placement Tomorrow!" required>
                 </div>
                 <button type="submit" class="btn"><i class="fas fa-plus"></i> Add Message</button>
             </form>
@@ -197,17 +452,31 @@
     </div>
 
     <script>
-        // 🔥 FIXED API_BASE & CORS SAFE
-        const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-            ? 'https://smart-notice-board-a.onrender.com/api' 
+        const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'https://smart-notice-board-a.onrender.com/api'
             : `${window.location.protocol}//${window.location.host}/api`;
 
-        console.log('🔗 API_BASE:', API_BASE);
+        console.log(' API_BASE:', API_BASE);
 
         let pdfs = [], images = [], videos = [], messages = [];
-        let dragDropHandlers = {}; // Store handlers per container
+        let dragDropHandlers = {};
 
-        // 📱 Status notifications
+        // PERSISTENT STORAGE FUNCTIONS
+        function saveOrderToStorage(type, ids) {
+            localStorage.setItem(`${type}_order`, JSON.stringify(ids));
+            console.log(` Saved ${type} order:`, ids);
+        }
+
+        function loadOrderFromStorage(type) {
+            const saved = localStorage.getItem(`${type}_order`);
+            return saved ? JSON.parse(saved) : null;
+        }
+
+        function clearOrderStorage(type) {
+            localStorage.removeItem(`${type}_order`);
+        }
+
+        // Status notifications
         function showStatus(message, type = 'success') {
             const toast = document.getElementById('statusToast');
             toast.textContent = message;
@@ -218,18 +487,31 @@
         function updateStatusBadge(type, count) {
             const badge = document.getElementById(`${type}Status`);
             if (badge) {
-                badge.innerHTML = count > 0 
+                badge.innerHTML = count > 0
                     ? `<i class="fas fa-check-circle"></i> ${type.toUpperCase()}: ${count}`
                     : `<i class="fas fa-pause-circle"></i> No ${type}`;
             }
         }
 
-        // 🎨 FIXED RENDERING
+        // RENDER WITH SAVED ORDER
         function renderMediaItems(containerId, items, type) {
             const container = document.getElementById(containerId);
             if (!items.length) {
                 container.innerHTML = getEmptyState(type);
+                clearOrderStorage(type);
                 return;
+            }
+
+            //  LOAD SAVED ORDER & REORDER ITEMS
+            const savedOrder = loadOrderFromStorage(type);
+            if (savedOrder && savedOrder.length > 0) {
+                // Filter saved order to only include existing items
+                const validOrder = savedOrder.filter(id => items.some(item => item._id === id));
+                const remainingItems = items.filter(item => !validOrder.includes(item._id));
+                const orderedItems = validOrder.map(id => items.find(item => item._id === id))
+                    .concat(remainingItems);
+                console.log(`🔄 Restored ${type} order:`, validOrder);
+                items = orderedItems;
             }
 
             container.innerHTML = items.map((item, index) => {
@@ -269,7 +551,6 @@
                 `;
             }).join('');
 
-            // 🐛 RE-INIT DRAG DROP AFTER RENDER
             setTimeout(() => initDragDrop(containerId, type), 100);
         }
 
@@ -279,7 +560,7 @@
             return `<div class="empty-state"><i class="${icons[type] || 'fas fa-exclamation-triangle'}"></i><div>${texts[type]}</div><small>Upload & drag to set priority</small></div>`;
         }
 
-        // 🔥 FIXED LOAD FUNCTIONS
+        //  LOAD FUNCTIONS (with persistence)
         async function loadPDFs() {
             try {
                 const response = await fetch(`${API_BASE}/pdf`);
@@ -327,7 +608,7 @@
             }
         }
 
-        // 🗑️ DELETE
+        // DELETE
         window.deleteMedia = async (id, type) => {
             if (confirm(`Delete this ${type.slice(0, -1)}?`)) {
                 try {
@@ -340,20 +621,22 @@
             }
         };
 
-        // 🔥 PERFECTLY FIXED DRAG & DROP
+        //  PERFECT DRAG & DROP WITH PERSISTENCE
         function initDragDrop(containerId, type) {
             const container = document.getElementById(containerId);
             if (!container) return;
 
             // Clear previous handlers
-            container.removeEventListener('dragstart', dragDropHandlers[containerId]?.dragstart);
-            container.removeEventListener('dragend', dragDropHandlers[containerId]?.dragend);
-            container.removeEventListener('dragover', dragDropHandlers[containerId]?.dragover);
-            container.removeEventListener('drop', dragDropHandlers[containerId]?.drop);
+            const handlers = dragDropHandlers[containerId];
+            if (handlers) {
+                container.removeEventListener('dragstart', handlers.dragstart);
+                container.removeEventListener('dragover', handlers.dragover);
+                container.removeEventListener('drop', handlers.drop);
+                container.removeEventListener('dragend', handlers.dragend);
+            }
 
             let draggedItem = null;
 
-            // DRAG START
             const dragstart = (e) => {
                 const card = e.target.closest('.media-card');
                 if (card && card.draggable) {
@@ -361,41 +644,36 @@
                     card.classList.add('dragging');
                     e.dataTransfer.effectAllowed = 'move';
                     e.dataTransfer.setData('text/plain', card.dataset.id);
-                    showStatus('🔄 Drag to reorder...', 'success');
                 }
             };
 
-            // DRAG OVER
             const dragover = (e) => {
                 e.preventDefault();
                 e.dataTransfer.dropEffect = 'move';
+                const afterElement = getDragAfterElement(container, e.clientY);
+                [...container.querySelectorAll('.media-card')].forEach(item => item.classList.remove('drop-zone'));
+                if (afterElement) afterElement.classList.add('drop-zone');
             };
 
-            // DROP
             const drop = (e) => {
                 e.preventDefault();
                 if (!draggedItem) return;
 
                 const afterElement = getDragAfterElement(container, e.clientY);
-                const cards = [...container.querySelectorAll('.media-card')];
-
                 if (afterElement == null) {
                     container.appendChild(draggedItem);
                 } else {
                     container.insertBefore(draggedItem, afterElement);
                 }
 
-                // Update badges instantly
                 updatePositionBadges(container);
-                
-                // Save order (CORS safe)
                 saveOrder(containerId, type);
-                
+
                 draggedItem.classList.remove('dragging');
                 draggedItem = null;
+                [...container.querySelectorAll('.media-card')].forEach(item => item.classList.remove('drop-zone'));
             };
 
-            // DRAG END
             const dragend = () => {
                 if (draggedItem) {
                     draggedItem.classList.remove('dragging');
@@ -404,13 +682,11 @@
                 [...container.querySelectorAll('.media-card')].forEach(item => item.classList.remove('drop-zone'));
             };
 
-            // ATTACH EVENTS
             container.addEventListener('dragstart', dragstart);
             container.addEventListener('dragover', dragover);
             container.addEventListener('drop', drop);
             container.addEventListener('dragend', dragend);
 
-            // Store handlers
             dragDropHandlers[containerId] = { dragstart, dragover, drop, dragend };
         }
 
@@ -439,19 +715,15 @@
             });
         }
 
-        // ✅ CORS-SAFE ORDER SAVE (No PATCH)
-        async function saveOrder(containerId, type) {
+        //  SAVE ORDER PERMANENTLY
+        function saveOrder(containerId, type) {
             const container = document.getElementById(containerId);
             const ids = [...container.querySelectorAll('.media-card')].map(item => item.dataset.id);
-            
-            console.log(`📋 ${type} order:`, ids);
-            showStatus('✅ Order saved locally! #1 is Priority');
-            
-            // Store in localStorage for persistence
-            localStorage.setItem(`${type}_order`, JSON.stringify(ids));
+            saveOrderToStorage(type, ids);
+            showStatus('Order SAVED permanently! #1 = Priority');
         }
 
-        // 🔄 FORM HANDLERS
+        //  FORM HANDLERS
         document.getElementById('pdfForm').addEventListener('submit', handleFormSubmit);
         document.getElementById('imageForm').addEventListener('submit', handleFormSubmit);
         document.getElementById('videoForm').addEventListener('submit', handleFormSubmit);
@@ -469,13 +741,12 @@
                 const formData = new FormData(form);
                 const endpoint = form.id === 'pdfForm' ? 'pdf' : form.id.replace('Form', 's');
                 const response = await fetch(`${API_BASE}/${endpoint}`, { method: 'POST', body: formData });
-                
                 if (!response.ok) throw new Error('Upload failed');
-                showStatus('✅ Upload successful!');
+                showStatus(' Upload successful!');
                 form.reset();
-                refreshAll();
+                setTimeout(refreshAll, 500); // Small delay to ensure backend saves
             } catch (error) {
-                showStatus(`❌ ${error.message}`, 'error');
+                showStatus(` ${error.message}`, 'error');
             } finally {
                 btn.innerHTML = originalText;
                 btn.disabled = false;
@@ -498,11 +769,11 @@
                     body: JSON.stringify({ text })
                 });
                 if (!response.ok) throw new Error('Failed to add');
-                showStatus('✅ Message added!');
+                showStatus(' Message added!');
                 e.target.reset();
-                refreshAll();
+                setTimeout(refreshAll, 500);
             } catch (error) {
-                showStatus('❌ Failed to add message', 'error');
+                showStatus(' Failed to add message', 'error');
             } finally {
                 btn.innerHTML = originalText;
                 btn.disabled = false;
@@ -510,15 +781,12 @@
         }
 
         async function refreshAll() {
-            loadPDFs();
-            loadImages();
-            loadVideos();
-            loadMessages();
+            loadPDFs(); loadImages(); loadVideos(); loadMessages();
         }
 
-        // 🚀 INIT
+        // INIT WITH PERSISTENCE
         async function init() {
-            console.log('🚀 Smart Notice Board Admin FIXED');
+            console.log(' Smart Notice Board Admin - PERSISTENT ORDER');
             await refreshAll();
         }
 
@@ -531,4 +799,5 @@
         setInterval(refreshAll, 10000);
     </script>
 </body>
+
 </html>
