@@ -303,8 +303,8 @@
             await Promise.all([loadPDFs(), loadImages(), loadVideos(), loadMarquee()]);
         }
 
-        // Auto refresh every 10 seconds
-        setInterval(init, 10000);
+        // Auto refresh every 60 seconds
+        setInterval(init, 60000);
         
         // PDF.js worker setup
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
