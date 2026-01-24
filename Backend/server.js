@@ -86,8 +86,6 @@ async function sendOTP(email, otp) {
   }
 }
 
-
-// Add to server.js (then DELETE after test)
 app.get('/api/resend-test', async (req, res) => {
   await sendOTP('ionodecloud@gmail.com', '123456');
   res.json({ msg: 'Test OTP sent!' });
