@@ -169,7 +169,7 @@ const API_BASE = window.location.origin.includes('localhost')
       return config;
     });
 
-    // 🔥 FIXED LOGIN → private/admin.html
+    //  FIXED LOGIN → private/admin.html
     document.getElementById('login-form').addEventListener('submit', async e => {
       e.preventDefault();
       const email = document.getElementById('email').value.trim().toLowerCase();
@@ -185,7 +185,7 @@ const API_BASE = window.location.origin.includes('localhost')
         
         msgEl.innerHTML = '<div class="alert alert-success">Login successful! Redirecting to Admin...</div>';
         
-        // 🎯 AFTER LOGIN → PRIVATE ADMIN PAGE
+        //  AFTER LOGIN → PRIVATE ADMIN PAGE
         setTimeout(() => {
           window.location.href = '/private/admin.html';
         }, 1500);
@@ -197,7 +197,7 @@ const API_BASE = window.location.origin.includes('localhost')
     });
 
     // Forgot password flow
-// 🔥 INSTANT OTP VERSION - Replace forgot-form submit
+//  INSTANT OTP VERSION - Replace forgot-form submit
 document.getElementById('forgot-form').addEventListener('submit', async e => {
   e.preventDefault();
   const emailStep = document.getElementById('emailStep');
@@ -211,11 +211,11 @@ document.getElementById('forgot-form').addEventListener('submit', async e => {
     try {
       const { data } = await axios.post('/auth/forgot-password', { email });
       
-      // 🎉 INSTANT OTP SHOW (Development + Production safe)
+      //  INSTANT OTP SHOW (Development + Production safe)
       if (data.instantOtp) {
-        alert(`🎉 INSTANT OTP: ${data.instantOtp}\n(Also sent to ${email})`);
+        alert(` INSTANT OTP: ${data.instantOtp}\n(Also sent to ${email})`);
       } else {
-        alert(`✅ OTP sent to ${email}! Check inbox/spam/promotions`);
+        alert(` OTP sent to ${email}! Check inbox/spam/promotions`);
       }
       
       currentEmail = email;
@@ -256,7 +256,7 @@ document.getElementById('forgot-form').addEventListener('submit', async e => {
     try {
       await axios.post('/auth/reset-password-otp', { email: currentEmail, password });
       bootstrap.Modal.getInstance(document.getElementById('forgotModal')).hide();
-      alert('✅ Password reset successful! Login with new password.');
+      alert('Password reset successful! Login with new password.');
       ['forgot-email', 'otp-input', 'new-password', 'confirm-password'].forEach(id => 
         document.getElementById(id).value = ''
       );

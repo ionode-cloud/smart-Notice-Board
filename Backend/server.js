@@ -56,7 +56,6 @@ const Rotation = mongoose.model('Rotation', rotationSchema);
 
 
 //  SIMPLE GMAIL TRANSPORTER 
-// ✅ NATIVE NODE.JS FETCH - No imports needed
 async function sendOTP(email, otp) {
   try {
     const response = await fetch('https://api.resend.com/emails', {
@@ -66,34 +65,27 @@ async function sendOTP(email, otp) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        from: 'Smart Notice Board <noreply@resend.dev>',
+        from: 'noreply@resend.dev',  
         to: email,
-        subject: '🔐 Password Reset OTP',
-        html: `
-          <div style="font-family: Arial; max-width: 600px; margin: 0 auto;">
-            <h2 style="color: #2563eb;">Password Reset OTP</h2>
-            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-                        color: white; padding: 30px; border-radius: 15px; text-align: center;">
-              <h1 style="font-size: 3.5rem; margin: 0;">${otp}</h1>
-              <p style="opacity: 0.9;">Valid for 10 minutes</p>
-            </div>
-          </div>
-        `
+        subject: `Your OTP is ${otp}`,  
+        text: `Your OTP: ${otp}`,      
+        html: `<h1>${otp}</h1>`       
       })
     });
     
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.message || 'Resend failed');
+      throw new Error(error.message);
     }
     
-    console.log(`✅ Resend OTP sent to: ${email}`);
+    console.log(` INSTANT DELIVERY: ${otp} → ${email}`);
     return true;
   } catch (err) {
-    console.error('❌ Resend ERROR:', err.message);
+    console.error(' EMAIL ERROR:', err.message);
     throw err;
   }
 }
+
 
 // Add to server.js (then DELETE after test)
 app.get('/api/resend-test', async (req, res) => {
@@ -173,7 +165,7 @@ const existingUser = await User.findOne({ email: 'ionodecloud@gmail.com' });
 if (!existingUser) {
   const hashedPassword = await bcrypt.hash('password123', 10);
   await User.create({ email: 'ionodecloud@gmail.com', password: hashedPassword });
-  console.log('✅ Admin created: ionodecloud@gmail.com');
+  console.log('Admin created: ionodecloud@gmail.com');
 }
 
   } catch (err) {
@@ -528,7 +520,7 @@ app.post('/api/auth/forgot-password', async (req, res) => {
     sendOTP(email, otp).catch(err => console.log('Email backup failed:', err));
     
   } catch (err) {
-    console.error('❌ OTP ERROR:', err.message);
+    console.error('OTP ERROR:', err.message);
     res.status(500).json({ msg: 'Server error' });
   }
 });
@@ -552,11 +544,11 @@ app.post('/api/auth/verify-otp', async (req, res) => {
       return res.status(400).json({ msg: 'Invalid or expired OTP' });
     }
     
-    // ✅ DON'T clear OTP - just extend expiry for reset window
+    // DON'T clear OTP - just extend expiry for reset window
     user.otpExpires = new Date(Date.now() + 15 * 60 * 1000); // Extend 15 mins
     await user.save();
     
-    console.log(`✅ OTP VERIFIED & EXTENDED: ${email}`);
+    console.log(`OTP VERIFIED & EXTENDED: ${email}`);
     res.json({ msg: 'OTP verified! Set new password.', verified: true });
     
   } catch (err) {
@@ -568,13 +560,13 @@ app.post('/api/auth/verify-otp', async (req, res) => {
 
 
 app.post('/api/auth/reset-password-otp', async (req, res) => {
-  console.log('🔍 RESET REQUEST:', req.body); // Debug
+  console.log('RESET REQUEST:', req.body); // Debug
   
   const { email, password } = req.body;
   
   // Basic validation
   if (!email || !password || password.length < 6) {
-    console.log('❌ VALIDATION FAILED:', { email: !!email, password: !!password, len: password?.length });
+    console.log('VALIDATION FAILED:', { email: !!email, password: !!password, len: password?.length });
     return res.status(400).json({ 
       msg: 'Email & password (6+ chars) required',
       debug: { email: !!email, password: !!password, length: password?.length }
@@ -585,15 +577,15 @@ app.post('/api/auth/reset-password-otp', async (req, res) => {
     const user = await User.findOne({ email: email.toLowerCase() });
     
     if (!user) {
-      console.log('❌ USER NOT FOUND');
+      console.log('USER NOT FOUND');
       return res.status(400).json({ msg: 'User not found' });
     }
     
-    // ✅ SIMPLIFIED LOGIC: Just check OTP expiry window (15 mins)
+    //  SIMPLIFIED LOGIC: Just check OTP expiry window (15 mins)
     const timeSinceOtpRequest = Date.now() - new Date(user.updatedAt).getTime();
     const sessionValid = timeSinceOtpRequest < 15 * 60 * 1000; // 15 min window
     
-    console.log('🔍 SESSION CHECK:', {
+    console.log(' SESSION CHECK:', {
       timeSinceOtp: Math.floor(timeSinceOtpRequest / 1000 / 60) + 'min',
       sessionValid,
       hasOtp: !!user.otp,
@@ -608,11 +600,11 @@ app.post('/api/auth/reset-password-otp', async (req, res) => {
     user.password = await bcrypt.hash(password, 10);
     await user.save();
     
-    console.log('✅ PASSWORD RESET SUCCESS:', email);
+    console.log(' PASSWORD RESET SUCCESS:', email);
     res.json({ msg: 'Password reset successful! You can now login.' });
     
   } catch (err) {
-    console.error('❌ RESET ERROR:', err);
+    console.error(' RESET ERROR:', err);
     res.status(500).json({ msg: 'Server error' });
   }
 });
@@ -641,6 +633,6 @@ app.get('/*path', (req, res) => {
 const PORT = process.env.PORT || 5000;
 connectDB().then(() => {
   app.listen(PORT, () => {
-    console.log(`🚀 Server: http://localhost:${PORT}`);
+    console.log(` Server: http://localhost:${PORT}`);
   });
 });
