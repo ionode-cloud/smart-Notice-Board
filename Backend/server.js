@@ -12,6 +12,15 @@ const path = require('path');
 const app = express();
 const MAX_FILE_SIZE = 100 * 1024 * 1024;
 
+
+const messageSchema = new mongoose.Schema({
+  text: { type: String, required: true },
+  isActive: { type: Boolean, default: true },
+  priority: { type: Number, default: 0 },
+  createdAt: { type: Date, default: Date.now }
+});
+const Message = mongoose.model('Message', messageSchema);
+
 // User Schema
 const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
@@ -361,13 +370,6 @@ app.use((err, req, res, next) => {
     console.error(' Server Error:', err.stack);
     res.status(500).json({ error: 'Something went wrong!', details: err.message });
 });
-//  MARQUEE MESSAGES API
-const Message = mongoose.model('Message', new mongoose.Schema({
-    text: { type: String, required: true },
-    isActive: { type: Boolean, default: true },
-    priority: { type: Number, default: 0 },
-    createdAt: { type: Date, default: Date.now }
-}));
 
 // Initialize default messages
 async function initMessages() {
@@ -476,6 +478,7 @@ app.post('/api/auth/forgot-password', async (req, res) => {
     await user.save();
     
     await transporter.sendMail({
+      from: '"Smart Notice Board" <boyfzx@gmail.com>',
       to: email,
       subject: 'Password Reset OTP',
       html: `
@@ -490,31 +493,54 @@ app.post('/api/auth/forgot-password', async (req, res) => {
     console.log(' OTP sent to:', email);
     res.json({ msg: 'OTP sent to your email!' });
   } catch (err) {
-    console.error(' Email error:', err.message);
-    res.status(500).json({ msg: 'Failed to send OTP' });
+    console.error('❌ EMAIL ERROR:', err.message, err.code);
+    res.status(500).json({ msg: 'Failed to send OTP' });  
   }
 });
 
 app.post('/api/auth/verify-otp', async (req, res) => {
   const { email, otp } = req.body;
+  
+  //  Input validation
+  if (!email || !otp || otp.length !== 6) {
+    return res.status(400).json({ msg: 'Email and 6-digit OTP required' });
+  }
+  
   try {
+    console.log(` Verifying OTP for: ${email}`);
+    
     const user = await User.findOne({ 
       email: email.toLowerCase(), 
       otp, 
       otpExpires: { $gt: Date.now() } 
     });
-    if (!user) return res.status(400).json({ msg: 'Invalid or expired OTP' });
-    res.json({ msg: 'OTP verified successfully!' });
+    
+    if (!user) {
+      console.log(` Invalid/expired OTP for: ${email}`);
+      return res.status(400).json({ msg: 'Invalid or expired OTP' });
+    }
+    user.otp = null;
+    user.otpExpires = null;
+    await user.save();
+    
+    console.log(`OTP verified for: ${email}`);
+    res.json({ 
+      msg: 'OTP verified successfully! You can now reset your password.',
+      verified: true 
+    });
+    
   } catch (err) {
-    res.status(500).json({ msg: 'Server error' });
+    console.error(' VERIFY OTP ERROR:', err.message);
+    res.status(500).json({ msg: 'Server error during verification' });
   }
 });
+
 
 app.post('/api/auth/reset-password-otp', async (req, res) => {
   const { email, password } = req.body;
   try {
     const user = await User.findOne({ email: email.toLowerCase() });
-    if (!user || user.otpExpires < Date.now()) {
+    if (!user || !user.otp || user.otpExpires < Date.now()) {
       return res.status(400).json({ msg: 'Invalid session. Request new OTP.' });
     }
     
