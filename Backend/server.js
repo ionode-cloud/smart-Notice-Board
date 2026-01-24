@@ -46,13 +46,17 @@ const Rotation = mongoose.model('Rotation', rotationSchema);
 
 // FIXED: createTransport
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: 'smtp.gmail.com',     
+  port: 587,                  
+  secure: false,              
   auth: {
-    user: process.env.GMAIL_USER,
-    pass: process.env.GMAIL_PASS
+    user: process.env.GMAIL_USER,    
+    pass: process.env.GMAIL_PASS      
+  },
+  tls: {
+    rejectUnauthorized: false 
   }
 });
-
 // Middleware
 app.use(cors({
   origin: ['*','http://localhost:5000'],
@@ -533,7 +537,7 @@ app.get('/api/auth/dashboard', authMiddleware, (req, res) => {
 });
 app.use(express.static(__dirname + '/public'));
 
-// 🔥 PRIVATE ADMIN ROUTE - ADD THIS EXACTLY
+// PRIVATE ADMIN ROUTE - ADD THIS EXACTLY
 app.get(['/private/admin.html', '/admin'], (req, res) => {
   const token = req.headers.authorization?.split(' ')[1] || req.cookies.token;
   if (!token) {
@@ -542,7 +546,7 @@ app.get(['/private/admin.html', '/admin'], (req, res) => {
   res.sendFile(__dirname + '/public/private/admin.html'); // YOUR dashboard
 });
 
-// 🔥 LOGIN PAGE - Everything else
+// LOGIN PAGE - Everything else
 app.get('/*path', (req, res) => {
   res.sendFile(__dirname + '/public/index.html');
 });

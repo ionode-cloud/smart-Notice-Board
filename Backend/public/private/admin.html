@@ -306,7 +306,7 @@
     <div class="status-toast" id="statusToast"></div>
 
     <div class="app-container">
-        <!-- 🔥 HEADER WITH LOGOUT BUTTON -->
+        <!--  HEADER WITH LOGOUT BUTTON -->
         <div class="header">
             <button class="logout-btn" onclick="logout()">
                 <i class="fas fa-sign-out-alt"></i> Logout
@@ -381,30 +381,28 @@
 
     <script>
         //  API_BASE
-        //  UNIVERSAL API_BASE - Local + Production
+        //  YOUR URL IS CORRECT
         const API_BASE = window.location.origin.includes('localhost')
             ? '/api'
-            : 'https://smart-notice-board-a.onrender.com/api';
+            : 'https://smart-notice-board-admin.ionode.cloud/api';
 
 
         let pdfs = [], images = [], videos = [], messages = [];
 
         //  LOGOUT FUNCTION - Redirects to public/index.html
-        window.logout = async function () {
-            try {
-                await fetch(`${API_BASE}/auth/logout`, { method: 'POST' });
-            } catch (e) {
-                console.log('Logout API call failed, clearing local storage');
-            }
-
+        // Replace logout function (around line 660)
+        window.logout = function () {
+            // Clear cookies manually
+            document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
             localStorage.removeItem('token');
             localStorage.removeItem('loginTime');
-            showStatus('Logged out successfully! Redirecting...', 'success');
 
+            showStatus('Logged out successfully!', 'success');
             setTimeout(() => {
-                window.location.href = '/public/index.html';
+                window.location.href = '/';  // Go to login page
             }, 1500);
         };
+
 
         function showStatus(message, type = 'success') {
             const toast = document.getElementById('statusToast');
@@ -542,13 +540,39 @@
                 e.dataTransfer.dropEffect = 'move';
             });
 
-            container.addEventListener('drop', (e) => {
+            container.addEventListener('drop', async (e) => {
                 e.preventDefault();
                 if (!draggedItem) return;
+
                 container.appendChild(draggedItem);
                 draggedItem.classList.remove('dragging');
+
+                // 🔥 SAVE ORDER TO SERVER
+                const cards = Array.from(container.querySelectorAll('.media-card'));
+                const order = cards.map(card => card.dataset.id);
+
+                const endpointMap = {
+                    'pdfList': 'pdfs',
+                    'imageList': 'images',
+                    'videoList': 'videos',
+                    'messageList': 'messages'
+                };
+                const endpoint = endpointMap[containerId];
+
+                try {
+                    await fetch(`${API_BASE}/${endpoint}`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ order })
+                    });
+                    showStatus('Order saved!', 'success');
+                } catch (e) {
+                    console.error('Save order failed');
+                }
+
                 draggedItem = null;
             });
+
 
             container.addEventListener('dragend', () => {
                 if (draggedItem) {
