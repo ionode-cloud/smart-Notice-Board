@@ -53,7 +53,7 @@ const rotationSchema = new mongoose.Schema({
 });
 
 const Rotation = mongoose.model('Rotation', rotationSchema);
-
+app.use(express.urlencoded({ limit: '100mb', extended: true }));
 
 //  SIMPLE GMAIL TRANSPORTER 
 async function sendOTP(email, otp) {
@@ -97,7 +97,7 @@ app.use(cors({
   origin: ['*','http://localhost:5000'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie']  
 }));
 
 app.use(express.json());
@@ -218,7 +218,7 @@ app.delete('/api/videos/:id', async (req, res) => {
 });
 
 //  UPLOAD ENDPOINTS
-app.post('/api/pdf', upload.single('pdf'), async (req, res) => {
+app.post('/api/pdf', authMiddleware, upload.single('pdf'), async (req, res) => {
     try {
         if (!req.file) return res.status(400).json({ error: 'No PDF file' });
 
@@ -249,7 +249,7 @@ app.post('/api/pdf', upload.single('pdf'), async (req, res) => {
     }
 });
 
-app.post('/api/images', upload.array('images', 10), async (req, res) => {
+app.post('/api/images', authMiddleware, upload.array('images', 10), async (req, res) => {
     try {
         if (!req.files?.length) return res.status(400).json({ error: 'No images' });
 
@@ -283,7 +283,7 @@ app.post('/api/images', upload.array('images', 10), async (req, res) => {
     }
 });
 
-app.post('/api/videos', upload.single('video'), async (req, res) => {
+app.post('/api/videos', authMiddleware, upload.single('video'), async (req, res) => {
     try {
         if (!req.file) return res.status(400).json({ error: 'No video' });
 
@@ -438,7 +438,7 @@ app.get('/api/messages', async (req, res) => {
 });
 
 // POST /api/messages - Add new message
-app.post('/api/messages', async (req, res) => {
+app.post('/api/messages', authMiddleware, async (req, res) => {
     try {
         const { text } = req.body;
         if (!text || text.length > 100) {
