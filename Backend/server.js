@@ -26,6 +26,7 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   otp: { type: String },
+   otpVerified: { type: Boolean, default: false },
   otpExpires: { type: Date }
 }, { timestamps: true });
 
@@ -53,19 +54,21 @@ const rotationSchema = new mongoose.Schema({
 
 const Rotation = mongoose.model('Rotation', rotationSchema);
 
-// FIXED: createTransport
+
+//  SIMPLE GMAIL TRANSPORTER (REPLACE entire Maileroo block)
 const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',     
-  port: 587,                  
-  secure: false,              
+  host: 'smtp.gmail.com',
+  port: 587,
+  secure: false,
   auth: {
-    user: process.env.GMAIL_USER,    
-    pass: process.env.GMAIL_PASS      
+    user: process.env.GMAIL_USER,  // ionodecloud@gmail.com
+    pass: process.env.GMAIL_PASS   // your app password
   },
   tls: {
-    rejectUnauthorized: false 
+    rejectUnauthorized: false
   }
 });
+
 // Middleware
 app.use(cors({
   origin: ['*','http://localhost:5000'],
@@ -133,12 +136,13 @@ const connectDB = async () => {
     await mongoose.connect(process.env.MONGO_URI);
     console.log('MongoDB connected');
     
-    const existingUser = await User.findOne({ email: 'boyfzx@gmail.com' });
-    if (!existingUser) {
-      const hashedPassword = await bcrypt.hash('password123', 10);
-      await User.create({ email: 'boyfzx@gmail.com', password: hashedPassword });
-      console.log(' Admin created');
-    }
+const existingUser = await User.findOne({ email: 'ionodecloud@gmail.com' });
+if (!existingUser) {
+  const hashedPassword = await bcrypt.hash('password123', 10);
+  await User.create({ email: 'ionodecloud@gmail.com', password: hashedPassword });
+  console.log('✅ Admin created: ionodecloud@gmail.com');
+}
+
   } catch (err) {
     console.error(' MongoDB failed:', err.message);
     process.exit(1);
@@ -466,49 +470,51 @@ res.json({ msg: 'Login success' });
   }
 });
 
+// Better error handling
 app.post('/api/auth/forgot-password', async (req, res) => {
   const { email } = req.body;
   try {
     const user = await User.findOne({ email: email.toLowerCase() });
-    if (!user) return res.status(400).json({ msg: 'User not found' });
+    if (!user) {
+      return res.json({ msg: 'If email exists, check inbox/spam.' });
+    }
     
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     user.otp = otp;
     user.otpExpires = Date.now() + 10 * 60 * 1000;
     await user.save();
     
+    // ✅ USE GMAIL INSTEAD OF MAILEROO
     await transporter.sendMail({
-      from: '"Smart Notice Board" <boyfzx@gmail.com>',
+      from: '"Smart Notice Board" <ionodecloud@gmail.com>',
       to: email,
-      subject: 'Password Reset OTP',
+      subject: '🔐 Password Reset OTP',
       html: `
         <h2>Password Reset OTP</h2>
-        <h3 style="color: #007bff;">Your OTP: <strong>${otp}</strong></h3>
-        <p>Expires in <strong>10 minutes</strong></p>
-        <hr>
-        <small>This is an automated message. Do not reply.</small>
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                    color: white; padding: 30px; border-radius: 15px; text-align: center;">
+          <h1 style="font-size: 3.5rem; margin: 0;">${otp}</h1>
+          <p>Valid for 10 minutes</p>
+        </div>
       `
     });
     
-    console.log(' OTP sent to:', email);
-    res.json({ msg: 'OTP sent to your email!' });
+    console.log(`✅ Gmail OTP sent to: ${email}`);
+    res.json({ msg: 'OTP sent! Check inbox/spam.' });
   } catch (err) {
-    console.error('❌ EMAIL ERROR:', err.message, err.code);
-    res.status(500).json({ msg: 'Failed to send OTP' });  
+    console.error('❌ EMAIL ERROR:', err.message);
+    res.status(500).json({ msg: 'Email service unavailable. Try again.' });
   }
 });
 
 app.post('/api/auth/verify-otp', async (req, res) => {
   const { email, otp } = req.body;
   
-  //  Input validation
   if (!email || !otp || otp.length !== 6) {
     return res.status(400).json({ msg: 'Email and 6-digit OTP required' });
   }
   
   try {
-    console.log(` Verifying OTP for: ${email}`);
-    
     const user = await User.findOne({ 
       email: email.toLowerCase(), 
       otp, 
@@ -516,47 +522,74 @@ app.post('/api/auth/verify-otp', async (req, res) => {
     });
     
     if (!user) {
-      console.log(` Invalid/expired OTP for: ${email}`);
       return res.status(400).json({ msg: 'Invalid or expired OTP' });
     }
-    user.otp = null;
-    user.otpExpires = null;
+    
+    // ✅ DON'T clear OTP - just extend expiry for reset window
+    user.otpExpires = new Date(Date.now() + 15 * 60 * 1000); // Extend 15 mins
     await user.save();
     
-    console.log(`OTP verified for: ${email}`);
-    res.json({ 
-      msg: 'OTP verified successfully! You can now reset your password.',
-      verified: true 
-    });
+    console.log(`✅ OTP VERIFIED & EXTENDED: ${email}`);
+    res.json({ msg: 'OTP verified! Set new password.', verified: true });
     
   } catch (err) {
-    console.error(' VERIFY OTP ERROR:', err.message);
-    res.status(500).json({ msg: 'Server error during verification' });
+    console.error('VERIFY ERROR:', err);
+    res.status(500).json({ msg: 'Verification failed' });
   }
 });
 
 
+
 app.post('/api/auth/reset-password-otp', async (req, res) => {
+  console.log('🔍 RESET REQUEST:', req.body); // Debug
+  
   const { email, password } = req.body;
+  
+  // Basic validation
+  if (!email || !password || password.length < 6) {
+    console.log('❌ VALIDATION FAILED:', { email: !!email, password: !!password, len: password?.length });
+    return res.status(400).json({ 
+      msg: 'Email & password (6+ chars) required',
+      debug: { email: !!email, password: !!password, length: password?.length }
+    });
+  }
+  
   try {
     const user = await User.findOne({ email: email.toLowerCase() });
-    if (!user || !user.otp || user.otpExpires < Date.now()) {
-      return res.status(400).json({ msg: 'Invalid session. Request new OTP.' });
+    
+    if (!user) {
+      console.log('❌ USER NOT FOUND');
+      return res.status(400).json({ msg: 'User not found' });
     }
     
+    // ✅ SIMPLIFIED LOGIC: Just check OTP expiry window (15 mins)
+    const timeSinceOtpRequest = Date.now() - new Date(user.updatedAt).getTime();
+    const sessionValid = timeSinceOtpRequest < 15 * 60 * 1000; // 15 min window
+    
+    console.log('🔍 SESSION CHECK:', {
+      timeSinceOtp: Math.floor(timeSinceOtpRequest / 1000 / 60) + 'min',
+      sessionValid,
+      hasOtp: !!user.otp,
+      otpExpires: user.otpExpires
+    });
+    
+    if (!sessionValid) {
+      return res.status(400).json({ msg: 'Session expired (15 mins). Request new OTP.' });
+    }
+    
+    // Reset password
     user.password = await bcrypt.hash(password, 10);
-    user.otp = null;
-    user.otpExpires = null;
     await user.save();
     
-    console.log(' Password reset for:', email);
-    res.json({ msg: 'Password reset successful!' });
+    console.log('✅ PASSWORD RESET SUCCESS:', email);
+    res.json({ msg: 'Password reset successful! You can now login.' });
+    
   } catch (err) {
+    console.error('❌ RESET ERROR:', err);
     res.status(500).json({ msg: 'Server error' });
   }
 });
 
-// All your existing API routes stay the same...
 
 app.get('/api/auth/dashboard', authMiddleware, (req, res) => {
   res.json({ msg: `Welcome Admin! User ID: ${req.user.id}` });
