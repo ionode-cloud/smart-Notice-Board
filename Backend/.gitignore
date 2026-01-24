@@ -1,0 +1,61 @@
+# 🚀 Node.js / Express / MERN Stack
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 🏗️ Environment Variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# 📁 Build / Dist
+dist/
+build/
+*.log
+
+# 🔒 IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 🔧 OS Generated
+.DS_Store
+Thumbs.db
+
+# 💾 Database
+*.db
+*.sqlite
+
+# 📦 NPM
+package-lock.json
+yarn.lock
+
+# 🖼️ Media Uploads (Local temp files)
+uploads/
+public/uploads/
+temp/
+
+# 🔐 SSL Certificates
+*.pem
+*.crt
+*.key
+
+# ⚙️ Runtime Data
+pids/
+logs/
+*.pid
+
+# 🚫 Coverage directory used by tools like istanbul
+coverage/
+
+# 🌐 Render/Vercel Deployment
+.vercel
+
+# 📄 PDF/Image temp files
+*.tmp
+*.temp
