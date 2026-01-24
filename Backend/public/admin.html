@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -71,42 +72,17 @@
             background: linear-gradient(90deg, var(--primary), var(--success), var(--warning));
         }
 
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
         .header-text h1 {
             font-size: 2.25rem;
             font-weight: 700;
             color: var(--gray-900);
+            text-align: center;
         }
 
-        .session-info {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            background: linear-gradient(135deg, var(--success), #059669);
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border-radius: 16px;
-            font-weight: 600;
-        }
-
-        .logout-btn {
-            background: rgba(255,255,255,0.2);
-            border: none;
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.2s ease;
-        }
-
-        .logout-btn:hover {
-            background: rgba(255,255,255,0.3);
+        .header-text p {
+            font-size: 1.125rem;
+            color: var(--gray-600);
+            font-weight: 500;
         }
 
         .status-toast {
@@ -198,7 +174,8 @@
             font-weight: 400;
         }
 
-        .file-input, .text-input {
+        .file-input,
+        .text-input {
             width: 100%;
             padding: 1rem 1.25rem;
             border: 2px dashed var(--gray-200);
@@ -209,7 +186,8 @@
             cursor: pointer;
         }
 
-        .file-input:hover, .text-input:hover {
+        .file-input:hover,
+        .text-input:hover {
             border-color: var(--primary);
             background: rgba(37, 99, 235, 0.05);
         }
@@ -355,7 +333,8 @@
             min-height: 1.25rem;
         }
 
-        .media-title.current, .media-title.featured {
+        .media-title.current,
+        .media-title.featured {
             color: var(--primary);
             font-size: 1.05rem;
             font-weight: 700;
@@ -392,12 +371,6 @@
             .media-grid {
                 grid-template-columns: 1fr;
             }
-
-            .header-content {
-                flex-direction: column;
-                gap: 1rem;
-                text-align: center;
-            }
         }
     </style>
 </head>
@@ -408,15 +381,7 @@
         <div class="header">
             <div class="header-content">
                 <div class="header-text">
-                    <h1><i class="fas fa-tachometer-alt"></i> Smart Notice Board Admin</h1>
-                    <p>Manage your digital notice board content</p>
-                </div>
-                <div class="session-info" id="sessionInfo">
-                    <i class="fas fa-clock"></i>
-                    <span id="sessionTime">Loading...</span>
-                    <button class="logout-btn" onclick="logout()">
-                        <i class="fas fa-sign-out-alt"></i> Logout
-                    </button>
+                    <h1>Smart Notice Board Admin</h1>
                 </div>
             </div>
         </div>
@@ -441,7 +406,6 @@
         <div class="card">
             <div class="card-header">
                 <h2><i class="fas fa-images"></i> Image Slideshow</h2>
-                <div class="status-badge" id="imageStatus"><i class="fas fa-sync fa-spin"></i> Loading...</div>
             </div>
             <form id="imageForm">
                 <div class="form-group">
@@ -472,7 +436,7 @@
         <!-- Messages Management -->
         <div class="card">
             <div class="card-header">
-                <h2><i class="fas fa-scroll"></i> Marquee Messages</h2>
+                <h2><i class="fas fa-scroll"></i>Marquee Messages</h2>
                 <div class="status-badge" id="messageStatus"><i class="fas fa-sync fa-spin"></i> Loading...</div>
             </div>
             <form id="messageForm">
@@ -488,92 +452,28 @@
     </div>
 
     <script>
-        // API Configuration
         const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
             ? 'https://smart-notice-board-a.onrender.com/api'
             : `${window.location.protocol}//${window.location.host}/api`;
 
-        console.log('🌐 API_BASE:', API_BASE);
+        console.log(' API_BASE:', API_BASE);
 
-        // Global state
         let pdfs = [], images = [], videos = [], messages = [];
         let dragDropHandlers = {};
-        let sessionTimeout;
 
-        // AUTHENTICATION SYSTEM
-        async function checkAuth() {
-            const token = localStorage.getItem('token');
-            const loginTime = localStorage.getItem('loginTime');
-            
-            // Check if 2 hours passed (7200000 ms)
-            if (loginTime && (Date.now() - parseInt(loginTime) > 7200000)) {
-                logout();
-                return false;
-            }
-            
-            if (!token) {
-                window.location.href = 'login.html';
-                return false;
-            }
-            
-            // Verify token with backend
-            try {
-                const response = await protectedFetch(`${API_BASE}/auth/verify`, {
-                    method: 'GET'
-                });
-                
-                if (!response.ok) {
-                    logout();
-                    return false;
-                }
-                
-                updateSessionTimer();
-                return true;
-            } catch (error) {
-                console.error('Auth check failed:', error);
-                logout();
-                return false;
-            }
+        // PERSISTENT STORAGE FUNCTIONS
+        function saveOrderToStorage(type, ids) {
+            localStorage.setItem(`${type}_order`, JSON.stringify(ids));
+            console.log(` Saved ${type} order:`, ids);
         }
 
-        function updateSessionTimer() {
-            const loginTime = localStorage.getItem('loginTime');
-            if (loginTime) {
-                const elapsed = Date.now() - parseInt(loginTime);
-                const remaining = 7200000 - elapsed;
-                const hours = Math.floor(remaining / 3600000);
-                const minutes = Math.floor((remaining % 3600000) / 60000);
-                document.getElementById('sessionTime').textContent = 
-                    `${hours}h ${minutes}m remaining`;
-            }
+        function loadOrderFromStorage(type) {
+            const saved = localStorage.getItem(`${type}_order`);
+            return saved ? JSON.parse(saved) : null;
         }
 
-        function logout() {
-            localStorage.removeItem('token');
-            localStorage.removeItem('loginTime');
-            if (sessionTimeout) clearTimeout(sessionTimeout);
-            window.location.href = 'login.html';
-        }
-
-        // PROTECTED FETCH - Auto-adds JWT token to ALL API calls
-        async function protectedFetch(url, options = {}) {
-            const token = localStorage.getItem('token');
-            
-            options.headers = {
-                ...options.headers,
-                'Authorization': `Bearer ${token}`,
-                ...(options.headers?.['Content-Type'] ? {} : {'Content-Type': 'application/json'})
-            };
-            
-            const response = await fetch(url, options);
-            
-            // Auto-logout on 401
-            if (response.status === 401) {
-                logout();
-                throw new Error('Session expired');
-            }
-            
-            return response;
+        function clearOrderStorage(type) {
+            localStorage.removeItem(`${type}_order`);
         }
 
         // Status notifications
@@ -593,40 +493,45 @@
             }
         }
 
-        // RENDER MEDIA ITEMS (unchanged from your original)
+        // RENDER WITH SAVED ORDER
         function renderMediaItems(containerId, items, type) {
             const container = document.getElementById(containerId);
             if (!items.length) {
                 container.innerHTML = getEmptyState(type);
-                localStorage.removeItem(`${type}_order`);
+                clearOrderStorage(type);
                 return;
             }
 
-            const savedOrder = localStorage.getItem(`${type}_order`);
-            let orderedItems = items;
-            
-            if (savedOrder) {
-                try {
-                    const order = JSON.parse(savedOrder);
-                    const validOrder = order.filter(id => items.some(item => item._id === id));
-                    const remainingItems = items.filter(item => !validOrder.includes(item._id));
-                    orderedItems = validOrder.map(id => items.find(item => item._id === id))
-                        .concat(remainingItems);
-                } catch (e) {
-                    console.warn('Invalid saved order:', savedOrder);
-                }
+            //  LOAD SAVED ORDER & REORDER ITEMS
+            const savedOrder = loadOrderFromStorage(type);
+            if (savedOrder && savedOrder.length > 0) {
+                // Filter saved order to only include existing items
+                const validOrder = savedOrder.filter(id => items.some(item => item._id === id));
+                const remainingItems = items.filter(item => !validOrder.includes(item._id));
+                const orderedItems = validOrder.map(id => items.find(item => item._id === id))
+                    .concat(remainingItems);
+                console.log(`🔄 Restored ${type} order:`, validOrder);
+                items = orderedItems;
             }
 
-            container.innerHTML = orderedItems.map((item, index) => {
+            container.innerHTML = items.map((item, index) => {
                 const isPriority1 = index === 0;
                 const cardClass = isPriority1 ? (type === 'images' ? 'featured' : 'current') : '';
                 const badgeClass = isPriority1 ? 'current' : (type === 'images' && index === 0 ? 'featured' : '');
+                const titleClass = isPriority1 ? 'current' : '';
+                const priorityText = isPriority1 ? (type === 'images' ? ' • Featured' : ' • Priority #1') : '';
 
                 let previewHtml = '';
                 if (type === 'pdfs') {
                     previewHtml = `<div class="media-preview" style="background: linear-gradient(135deg, #f3f4f6, #e5e7eb); display: flex; align-items: center; justify-content: center;"><i class="fas fa-file-pdf" style="font-size: 3rem; color: #dc2626;"></i></div>`;
                 } else if (type === 'images') {
-                    previewHtml = `<img src="${item.cloudinary_url}" alt="${item.filename}" class="media-preview" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="media-preview" style="display:none; background: var(--gray-100); align-items: center; justify-content: center;"><i class="fas fa-image" style="font-size:3rem;color:var(--gray-400)"></i></div>`;
+                    previewHtml = `
+                        <img src="${item.cloudinary_url}" alt="${item.filename}" class="media-preview" 
+                             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                        <div class="media-preview" style="display:none; background: var(--gray-100); align-items: center; justify-content: center;">
+                            <i class="fas fa-image" style="font-size:3rem;color:var(--gray-400)"></i>
+                        </div>
+                    `;
                 } else if (type === 'videos') {
                     previewHtml = `<video src="${item.cloudinary_url}" muted class="media-preview" preload="metadata"></video>`;
                 } else if (type === 'messages') {
@@ -637,7 +542,7 @@
                     <div class="media-card ${cardClass}" draggable="true" data-id="${item._id}" data-type="${type}">
                         <div class="position-badge ${badgeClass}">#${index + 1}</div>
                         ${previewHtml}
-                        <div class="media-title">${item.filename || item.text}${isPriority1 ? (type === 'images' ? ' • Featured' : ' • Priority #1') : ''}</div>
+                        <div class="media-title ${titleClass}">${item.filename || item.text}${priorityText}</div>
                         <div class="media-meta">${new Date(item.uploadedAt || item.createdAt).toLocaleString()}</div>
                         <button class="btn btn-danger" onclick="deleteMedia('${item._id}', '${type}')">
                             <i class="fas fa-trash"></i> Delete
@@ -655,10 +560,10 @@
             return `<div class="empty-state"><i class="${icons[type] || 'fas fa-exclamation-triangle'}"></i><div>${texts[type]}</div><small>Upload & drag to set priority</small></div>`;
         }
 
-        // LOAD DATA (PROTECTED)
+        //  LOAD FUNCTIONS (with persistence)
         async function loadPDFs() {
             try {
-                const response = await protectedFetch(`${API_BASE}/pdf`);
+                const response = await fetch(`${API_BASE}/pdf`);
                 pdfs = await response.json();
                 renderMediaItems('pdfList', pdfs, 'pdfs');
                 updateStatusBadge('pdf', pdfs.length);
@@ -670,10 +575,9 @@
 
         async function loadImages() {
             try {
-                const response = await protectedFetch(`${API_BASE}/images`);
+                const response = await fetch(`${API_BASE}/images`);
                 images = await response.json();
                 renderMediaItems('imageList', images, 'images');
-                updateStatusBadge('image', images.length);
             } catch (error) {
                 console.error('Images load error:', error);
                 document.getElementById('imageList').innerHTML = getEmptyState('images');
@@ -682,7 +586,7 @@
 
         async function loadVideos() {
             try {
-                const response = await protectedFetch(`${API_BASE}/videos`);
+                const response = await fetch(`${API_BASE}/videos`);
                 videos = await response.json();
                 renderMediaItems('videoList', videos, 'videos');
                 updateStatusBadge('video', videos.length);
@@ -694,7 +598,7 @@
 
         async function loadMessages() {
             try {
-                const response = await protectedFetch(`${API_BASE}/messages`);
+                const response = await fetch(`${API_BASE}/messages`);
                 messages = await response.json();
                 renderMediaItems('messageList', messages, 'messages');
                 updateStatusBadge('message', messages.length);
@@ -708,7 +612,7 @@
         window.deleteMedia = async (id, type) => {
             if (confirm(`Delete this ${type.slice(0, -1)}?`)) {
                 try {
-                    await protectedFetch(`${API_BASE}/${type}/${id}`, { method: 'DELETE' });
+                    await fetch(`${API_BASE}/${type}/${id}`, { method: 'DELETE' });
                     showStatus(`${type.toUpperCase()} deleted!`);
                     refreshAll();
                 } catch (error) {
@@ -717,10 +621,19 @@
             }
         };
 
-        // DRAG & DROP (unchanged)
+        //  PERFECT DRAG & DROP WITH PERSISTENCE
         function initDragDrop(containerId, type) {
             const container = document.getElementById(containerId);
             if (!container) return;
+
+            // Clear previous handlers
+            const handlers = dragDropHandlers[containerId];
+            if (handlers) {
+                container.removeEventListener('dragstart', handlers.dragstart);
+                container.removeEventListener('dragover', handlers.dragover);
+                container.removeEventListener('drop', handlers.drop);
+                container.removeEventListener('dragend', handlers.dragend);
+            }
 
             let draggedItem = null;
 
@@ -773,6 +686,8 @@
             container.addEventListener('dragover', dragover);
             container.addEventListener('drop', drop);
             container.addEventListener('dragend', dragend);
+
+            dragDropHandlers[containerId] = { dragstart, dragover, drop, dragend };
         }
 
         function getDragAfterElement(container, y) {
@@ -800,14 +715,15 @@
             });
         }
 
+        //  SAVE ORDER PERMANENTLY
         function saveOrder(containerId, type) {
             const container = document.getElementById(containerId);
             const ids = [...container.querySelectorAll('.media-card')].map(item => item.dataset.id);
-            localStorage.setItem(`${type}_order`, JSON.stringify(ids));
+            saveOrderToStorage(type, ids);
             showStatus('Order SAVED permanently! #1 = Priority');
         }
 
-        // FORM HANDLERS
+        //  FORM HANDLERS
         document.getElementById('pdfForm').addEventListener('submit', handleFormSubmit);
         document.getElementById('imageForm').addEventListener('submit', handleFormSubmit);
         document.getElementById('videoForm').addEventListener('submit', handleFormSubmit);
@@ -824,17 +740,13 @@
             try {
                 const formData = new FormData(form);
                 const endpoint = form.id === 'pdfForm' ? 'pdf' : form.id.replace('Form', 's');
-                const response = await protectedFetch(`${API_BASE}/${endpoint}`, { 
-                    method: 'POST', 
-                    body: formData 
-                });
-                
+                const response = await fetch(`${API_BASE}/${endpoint}`, { method: 'POST', body: formData });
                 if (!response.ok) throw new Error('Upload failed');
-                showStatus('Upload successful!');
+                showStatus(' Upload successful!');
                 form.reset();
-                setTimeout(refreshAll, 500);
+                setTimeout(refreshAll, 500); // Small delay to ensure backend saves
             } catch (error) {
-                showStatus(`${error.message}`, 'error');
+                showStatus(` ${error.message}`, 'error');
             } finally {
                 btn.innerHTML = originalText;
                 btn.disabled = false;
@@ -851,17 +763,17 @@
             btn.disabled = true;
 
             try {
-                const response = await protectedFetch(`${API_BASE}/messages`, {
+                const response = await fetch(`${API_BASE}/messages`, {
                     method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ text })
                 });
-                
                 if (!response.ok) throw new Error('Failed to add');
-                showStatus('Message added!');
+                showStatus(' Message added!');
                 e.target.reset();
                 setTimeout(refreshAll, 500);
             } catch (error) {
-                showStatus('Failed to add message', 'error');
+                showStatus(' Failed to add message', 'error');
             } finally {
                 btn.innerHTML = originalText;
                 btn.disabled = false;
@@ -869,36 +781,23 @@
         }
 
         async function refreshAll() {
-            await Promise.all([loadPDFs(), loadImages(), loadVideos(), loadMessages()]);
+            loadPDFs(); loadImages(); loadVideos(); loadMessages();
         }
 
-        // INIT
+        // INIT WITH PERSISTENCE
         async function init() {
-            console.log('🚀 Smart Notice Board Admin - FULLY PROTECTED');
-            
-            // Check auth first
-            const isAuthenticated = await checkAuth();
-            if (!isAuthenticated) return;
-
-            // Load content
+            console.log(' Smart Notice Board Admin - PERSISTENT ORDER');
             await refreshAll();
-
-            // Session monitoring
-            sessionTimeout = setTimeout(logout, 7200000);
-            setInterval(updateSessionTimer, 60000); // Update every minute
-            setInterval(checkAuth, 300000); // Check every 5 minutes
-            setInterval(refreshAll, 10000); // Auto-refresh data
         }
 
-        // Auto-init
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', init);
         } else {
             init();
         }
 
-        // Expose logout globally
-        window.logout = logout;
+        setInterval(refreshAll, 10000);
     </script>
 </body>
+
 </html>
