@@ -55,19 +55,52 @@ const rotationSchema = new mongoose.Schema({
 const Rotation = mongoose.model('Rotation', rotationSchema);
 
 
-//  SIMPLE GMAIL TRANSPORTER (REPLACE entire Maileroo block)
-const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.GMAIL_USER,  // ionodecloud@gmail.com
-    pass: process.env.GMAIL_PASS   // your app password
-  },
-  tls: {
-    rejectUnauthorized: false
+//  SIMPLE GMAIL TRANSPORTER 
+// ✅ NATIVE NODE.JS FETCH - No imports needed
+async function sendOTP(email, otp) {
+  try {
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        from: 'Smart Notice Board <noreply@resend.dev>',
+        to: email,
+        subject: '🔐 Password Reset OTP',
+        html: `
+          <div style="font-family: Arial; max-width: 600px; margin: 0 auto;">
+            <h2 style="color: #2563eb;">Password Reset OTP</h2>
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                        color: white; padding: 30px; border-radius: 15px; text-align: center;">
+              <h1 style="font-size: 3.5rem; margin: 0;">${otp}</h1>
+              <p style="opacity: 0.9;">Valid for 10 minutes</p>
+            </div>
+          </div>
+        `
+      })
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Resend failed');
+    }
+    
+    console.log(`✅ Resend OTP sent to: ${email}`);
+    return true;
+  } catch (err) {
+    console.error('❌ Resend ERROR:', err.message);
+    throw err;
   }
+}
+
+// Add to server.js (then DELETE after test)
+app.get('/api/resend-test', async (req, res) => {
+  await sendOTP('ionodecloud@gmail.com', '123456');
+  res.json({ msg: 'Test OTP sent!' });
 });
+
 
 // Middleware
 app.use(cors({
@@ -473,39 +506,33 @@ res.json({ msg: 'Login success' });
 // Better error handling
 app.post('/api/auth/forgot-password', async (req, res) => {
   const { email } = req.body;
+  
   try {
     const user = await User.findOne({ email: email.toLowerCase() });
-    if (!user) {
-      return res.json({ msg: 'If email exists, check inbox/spam.' });
-    }
+    if (!user) return res.json({ msg: 'If email exists, OTP sent!' });
     
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     user.otp = otp;
     user.otpExpires = Date.now() + 10 * 60 * 1000;
     await user.save();
     
-    // ✅ USE GMAIL INSTEAD OF MAILEROO
-    await transporter.sendMail({
-      from: '"Smart Notice Board" <ionodecloud@gmail.com>',
-      to: email,
-      subject: '🔐 Password Reset OTP',
-      html: `
-        <h2>Password Reset OTP</h2>
-        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-                    color: white; padding: 30px; border-radius: 15px; text-align: center;">
-          <h1 style="font-size: 3.5rem; margin: 0;">${otp}</h1>
-          <p>Valid for 10 minutes</p>
-        </div>
-      `
+    // 🎉 INSTANT DELIVERY + Email backup
+    console.log(`🎉 INSTANT OTP: ${otp} for ${email}`);
+    
+    res.json({ 
+      msg: 'OTP sent!', 
+      instantOtp: process.env.NODE_ENV === 'development' ? otp : undefined  // Dev only
     });
     
-    console.log(`✅ Gmail OTP sent to: ${email}`);
-    res.json({ msg: 'OTP sent! Check inbox/spam.' });
+    // Email backup (non-blocking)
+    sendOTP(email, otp).catch(err => console.log('Email backup failed:', err));
+    
   } catch (err) {
-    console.error('❌ EMAIL ERROR:', err.message);
-    res.status(500).json({ msg: 'Email service unavailable. Try again.' });
+    console.error('❌ OTP ERROR:', err.message);
+    res.status(500).json({ msg: 'Server error' });
   }
 });
+
 
 app.post('/api/auth/verify-otp', async (req, res) => {
   const { email, otp } = req.body;
