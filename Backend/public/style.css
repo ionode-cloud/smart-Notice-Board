@@ -1,0 +1,12 @@
+body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+.bg-gradient {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+}
+.form-control:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 0.2rem rgba(102,126,234,.25);
+}
+.form-control-lg { font-size: 1.1rem; }
+#otp-input { letter-spacing: 0.3rem; font-family: monospace; }
+.card { border-radius: 20px; }
+.shadow-lg { box-shadow: 0 20px 40px rgba(0,0,0,0.1) !important; }

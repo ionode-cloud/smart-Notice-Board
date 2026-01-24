@@ -1,50 +1,26 @@
-// server.js - Smart Notice Board API (FULL .env VERSION)
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const nodemailer = require('nodemailer');
 const multer = require('multer');
 const cloudinary = require('cloudinary').v2;
-require('dotenv').config();
+const path = require('path');
 
 const app = express();
+const MAX_FILE_SIZE = 100 * 1024 * 1024;
 
-//  ENVIRONMENT VARIABLES
-const PORT = process.env.PORT || 5000;
-const MONGODB_URI = process.env.MONGODB_URI ;
-const MAX_FILE_SIZE = parseInt(process.env.MAX_FILE_SIZE) || 100 * 1024 * 1024;
+// User Schema
+const userSchema = new mongoose.Schema({
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  otp: { type: String },
+  otpExpires: { type: Date }
+}, { timestamps: true });
 
-//  MIDDLEWARE
-app.use(cors({ origin: process.env.CORS_ORIGIN || '*' }));
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ extended: true, limit: '50mb' }));
-app.use(express.static('public'));
-
-//  CLOUDINARY CONFIG (from .env)
-cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET
-});
-
-//  MULTER CONFIG
-const storage = multer.memoryStorage();
-const upload = multer({ 
-    storage,
-    limits: { fileSize: MAX_FILE_SIZE },
-    fileFilter: (req, file, cb) => {
-        if (file.mimetype === 'application/pdf') return cb(null, true);
-        if (file.mimetype.startsWith('image/')) return cb(null, true);
-        if (file.mimetype.startsWith('video/')) return cb(null, true);
-        cb(new Error('Invalid file type'), false);
-    }
-});
-
-//  MONGODB
-mongoose.connect(MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-}).then(() => console.log(' MongoDB Connected'))
-  .catch(err => console.error(' MongoDB Error:', err));
+const User = mongoose.model('User', userSchema);
 
 //  MEDIA SCHEMA
 const mediaSchema = new mongoose.Schema({
@@ -68,6 +44,62 @@ const rotationSchema = new mongoose.Schema({
 
 const Rotation = mongoose.model('Rotation', rotationSchema);
 
+// FIXED: createTransport
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.GMAIL_USER,
+    pass: process.env.GMAIL_PASS
+  }
+});
+
+// Middleware
+app.use(cors({
+  origin: ['*','http://localhost:5000'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+app.use(express.json());
+
+// JWT Middleware
+const cookieParser = require('cookie-parser');
+app.use(cookieParser());
+
+const authMiddleware = (req, res, next) => {
+  const token = req.cookies?.token;
+  if (!token) return res.redirect('/');
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded;
+    next();
+  } catch (err) {
+    return res.redirect('/');
+  }
+};
+
+//  CLOUDINARY CONFIG (from .env)
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
+});
+
+//  MULTER CONFIG
+const storage = multer.memoryStorage();
+const upload = multer({ 
+    storage,
+    limits: { fileSize: 100 * 1024 * 1024 }, 
+    fileFilter: (req, file, cb) => {
+        if (file.mimetype === 'application/pdf') return cb(null, true);
+        if (file.mimetype.startsWith('image/')) return cb(null, true);
+        if (file.mimetype.startsWith('video/')) return cb(null, true);
+        cb(new Error('Invalid file type'), false);
+    }
+});
+
 //  Initialize rotation trackers
 async function initRotationTrackers() {
     const types = ['pdf', 'video'];
@@ -81,6 +113,24 @@ async function initRotationTrackers() {
 }
 
 mongoose.connection.once('open', initRotationTrackers);
+
+// Connect DB & Create Admin
+const connectDB = async () => {
+  try {
+    await mongoose.connect(process.env.MONGO_URI);
+    console.log('MongoDB connected');
+    
+    const existingUser = await User.findOne({ email: 'boyfzx@gmail.com' });
+    if (!existingUser) {
+      const hashedPassword = await bcrypt.hash('password123', 10);
+      await User.create({ email: 'boyfzx@gmail.com', password: hashedPassword });
+      console.log(' Admin created');
+    }
+  } catch (err) {
+    console.error(' MongoDB failed:', err.message);
+    process.exit(1);
+  }
+};
 
 //  REINDEX FUNCTION
 async function reindexMedia(type) {
@@ -380,8 +430,127 @@ app.delete('/api/messages/:id', async (req, res) => {
     }
 });
 
-//  START SERVER
-app.listen(PORT, () => {
-    console.log(` Server running on http://localhost:${PORT}`);
-    console.log(` Health: http://localhost:${PORT}/api/health`);
+//  ROUTES
+app.post('/api/auth/login', async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!user || !await bcrypt.compare(password, user.password)) {
+      return res.status(400).json({ msg: 'Invalid credentials' });
+    }
+    
+    const token = jwt.sign(
+      { id: user._id, email: user.email }, 
+      process.env.JWT_SECRET, 
+      { expiresIn: '2h' }
+    );
+    
+    console.log(' Login:', email);
+    res.cookie('token', token, {
+  httpOnly: true,
+  secure: false, // true in production with HTTPS
+  sameSite: 'lax',
+  maxAge: 2 * 60 * 60 * 1000
+});
+
+res.json({ msg: 'Login success' });
+
+  } catch (err) {
+    res.status(500).json({ msg: 'Server error' });
+  }
+});
+
+app.post('/api/auth/forgot-password', async (req, res) => {
+  const { email } = req.body;
+  try {
+    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!user) return res.status(400).json({ msg: 'User not found' });
+    
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    user.otp = otp;
+    user.otpExpires = Date.now() + 10 * 60 * 1000;
+    await user.save();
+    
+    await transporter.sendMail({
+      to: email,
+      subject: 'Password Reset OTP',
+      html: `
+        <h2>Password Reset OTP</h2>
+        <h3 style="color: #007bff;">Your OTP: <strong>${otp}</strong></h3>
+        <p>Expires in <strong>10 minutes</strong></p>
+        <hr>
+        <small>This is an automated message. Do not reply.</small>
+      `
+    });
+    
+    console.log(' OTP sent to:', email);
+    res.json({ msg: 'OTP sent to your email!' });
+  } catch (err) {
+    console.error(' Email error:', err.message);
+    res.status(500).json({ msg: 'Failed to send OTP' });
+  }
+});
+
+app.post('/api/auth/verify-otp', async (req, res) => {
+  const { email, otp } = req.body;
+  try {
+    const user = await User.findOne({ 
+      email: email.toLowerCase(), 
+      otp, 
+      otpExpires: { $gt: Date.now() } 
+    });
+    if (!user) return res.status(400).json({ msg: 'Invalid or expired OTP' });
+    res.json({ msg: 'OTP verified successfully!' });
+  } catch (err) {
+    res.status(500).json({ msg: 'Server error' });
+  }
+});
+
+app.post('/api/auth/reset-password-otp', async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!user || user.otpExpires < Date.now()) {
+      return res.status(400).json({ msg: 'Invalid session. Request new OTP.' });
+    }
+    
+    user.password = await bcrypt.hash(password, 10);
+    user.otp = null;
+    user.otpExpires = null;
+    await user.save();
+    
+    console.log(' Password reset for:', email);
+    res.json({ msg: 'Password reset successful!' });
+  } catch (err) {
+    res.status(500).json({ msg: 'Server error' });
+  }
+});
+
+// All your existing API routes stay the same...
+
+app.get('/api/auth/dashboard', authMiddleware, (req, res) => {
+  res.json({ msg: `Welcome Admin! User ID: ${req.user.id}` });
+});
+app.use(express.static(__dirname + '/public'));
+
+// 🔥 PRIVATE ADMIN ROUTE - ADD THIS EXACTLY
+app.get(['/private/admin.html', '/admin'], (req, res) => {
+  const token = req.headers.authorization?.split(' ')[1] || req.cookies.token;
+  if (!token) {
+    return res.status(401).sendFile(__dirname + '/public/index.html'); // Back to login
+  }
+  res.sendFile(__dirname + '/public/private/admin.html'); // YOUR dashboard
+});
+
+// 🔥 LOGIN PAGE - Everything else
+app.get('/*path', (req, res) => {
+  res.sendFile(__dirname + '/public/index.html');
+});
+
+// Start Server
+const PORT = process.env.PORT || 5000;
+connectDB().then(() => {
+  app.listen(PORT, () => {
+    console.log(`🚀 Server: http://localhost:${PORT}`);
+  });
 });
